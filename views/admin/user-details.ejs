@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - School Events</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <%- include('../partials/header') %>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        <div class="row">
+            <div class="col-12">
+                <!-- User Info Card -->
+                <div class="card shadow-lg border-0 mb-4" data-aos="fade-up">
+                    <div class="card-header bg-primary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3 class="mb-0">
+                                <i class="fas fa-user me-2"></i>
+                                User Details
+                            </h3>
+                            <div>
+                                <a href="/admin/users/<%= user.id %>/edit" class="btn btn-light me-2">
+                                    <i class="fas fa-edit me-2"></i>Edit User
+                                </a>
+                                <a href="/admin/users" class="btn btn-outline-light">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Users
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="text-primary mb-3">Personal Information</h5>
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td><strong>Name:</strong></td>
+                                        <td><%= user.first_name %> <%= user.last_name %></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Email:</strong></td>
+                                        <td><%= user.email %></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Phone:</strong></td>
+                                        <td><%= user.phone || 'Not provided' %></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Role:</strong></td>
+                                        <td>
+                                            <span class="badge bg-<%= user.role === 'admin' ? 'danger' : 'primary' %>">
+                                                <%= user.role.charAt(0).toUpperCase() + user.role.slice(1) %>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Joined:</strong></td>
+                                        <td><%= new Date(user.created_at).toLocaleDateString() %></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="text-primary mb-3">Statistics</h5>
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <div class="border rounded p-3">
+                                            <h4 class="text-primary mb-0"><%= user.student_count || 0 %></h4>
+                                            <small class="text-muted">Students</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="border rounded p-3">
+                                            <h4 class="text-success mb-0"><%= user.registration_count || 0 %></h4>
+                                            <small class="text-muted">Registrations</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="border rounded p-3">
+                                            <h4 class="text-info mb-0"><%= user.notification_count || 0 %></h4>
+                                            <small class="text-muted">Notifications</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <% if (user.role === 'parent' && students.length > 0) { %>
+                <!-- Students Card -->
+                <div class="card shadow-lg border-0 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-graduation-cap me-2"></i>
+                            Students (<%= students.length %>)
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Grade</th>
+                                        <th>Section</th>
+                                        <th>Date of Birth</th>
+                                        <th>Registrations</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% students.forEach(student => { %>
+                                    <tr>
+                                        <td><strong><%= student.first_name %> <%= student.last_name %></strong></td>
+                                        <td><%= student.grade %></td>
+                                        <td><%= student.section %></td>
+                                        <td><%= new Date(student.date_of_birth).toLocaleDateString() %></td>
+                                        <td>
+                                            <span class="badge bg-info"><%= student.registration_count || 0 %></span>
+                                        </td>
+                                    </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+
+                <% if (registrations.length > 0) { %>
+                <!-- Recent Registrations Card -->
+                <div class="card shadow-lg border-0" data-aos="fade-up" data-aos-delay="200">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-calendar-check me-2"></i>
+                            Recent Event Registrations (<%= registrations.length %>)
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Event</th>
+                                        <th>Student</th>
+                                        <th>Registration Date</th>
+                                        <th>Payment Status</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% registrations.forEach(registration => { %>
+                                    <tr>
+                                        <td><strong><%= registration.event_title %></strong></td>
+                                        <td><%= registration.student_name %></td>
+                                        <td><%= new Date(registration.registration_date).toLocaleDateString() %></td>
+                                        <td>
+                                            <span class="badge bg-<%= registration.payment_status === 'paid' ? 'success' : registration.payment_status === 'pending' ? 'warning' : 'danger' %>">
+                                                <%= registration.payment_status.charAt(0).toUpperCase() + registration.payment_status.slice(1) %>
+                                            </span>
+                                        </td>
+                                        <td>$<%= registration.payment_amount || '0.00' %></td>
+                                    </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+
+                <% if (user.role === 'parent' && students.length === 0) { %>
+                <!-- No Students Message -->
+                <div class="card shadow-lg border-0" data-aos="fade-up" data-aos-delay="100">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
+                        <h5>No Students Found</h5>
+                        <p class="text-muted">This parent hasn't added any students yet.</p>
+                    </div>
+                </div>
+                <% } %>
+
+                <% if (registrations.length === 0) { %>
+                <!-- No Registrations Message -->
+                <div class="card shadow-lg border-0" data-aos="fade-up" data-aos-delay="200">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                        <h5>No Event Registrations</h5>
+                        <p class="text-muted">This user hasn't registered for any events yet.</p>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <%- include('../partials/footer') %>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="/js/main.js"></script>
+    <script>
+        // Initialize AOS
+        AOS.init();
+    </script>
+</body>
+</html> 

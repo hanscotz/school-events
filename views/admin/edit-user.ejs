@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit User - School Events</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <%- include('../partials/header') %>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-lg border-0" data-aos="fade-up">
+                    <div class="card-header bg-warning text-dark">
+                        <h3 class="mb-0">
+                            <i class="fas fa-user-edit me-2"></i>
+                            Edit User
+                        </h3>
+                    </div>
+                    <div class="card-body p-4">
+                        <% if (typeof error !== 'undefined' && error) { %>
+                            <div class="alert alert-danger" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <%= error %>
+                            </div>
+                        <% } %>
+
+                        <% if (typeof success !== 'undefined' && success) { %>
+                            <div class="alert alert-success" role="alert">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <%= success %>
+                            </div>
+                        <% } %>
+
+                        <form action="/admin/users/<%= user.id %>/edit" method="POST" id="editUserForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="firstName" class="form-label">First Name *</label>
+                                    <input type="text" class="form-control" id="firstName" name="firstName" value="<%= user.first_name %>" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="lastName" class="form-label">Last Name *</label>
+                                    <input type="text" class="form-control" id="lastName" name="lastName" value="<%= user.last_name %>" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">Email Address *</label>
+                                    <input type="email" class="form-control" id="email" name="email" value="<%= user.email %>" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="phone" class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" value="<%= user.phone || '' %>">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="role" class="form-label">Role *</label>
+                                    <select class="form-select" id="role" name="role" required>
+                                        <option value="admin" <%= user.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                                        <option value="parent" <%= user.role === 'parent' ? 'selected' : '' %>>Parent</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="status" class="form-label">Status</label>
+                                    <select class="form-select" id="status" name="status">
+                                        <option value="active" selected>Active</option>
+                                        <option value="inactive">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Password Change (Optional)</strong><br>
+                                Leave password fields empty if you don't want to change the password.
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="newPassword" class="form-label">New Password</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="newPassword" name="newPassword">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="toggleNewPassword()">
+                                            <i class="fas fa-eye" id="newPasswordIcon"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="confirmNewPassword" class="form-label">Confirm New Password</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="confirmNewPassword" name="confirmNewPassword">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="toggleConfirmNewPassword()">
+                                            <i class="fas fa-eye" id="confirmNewPasswordIcon"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="generatePassword" class="form-label">Generate New Password</label>
+                                    <div class="d-grid">
+                                        <button type="button" class="btn btn-outline-info" onclick="generatePassword()">
+                                            <i class="fas fa-key me-2"></i>Generate Strong Password
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="resetPassword" class="form-label">Reset Password</label>
+                                    <div class="d-grid">
+                                        <button type="button" class="btn btn-outline-warning" onclick="resetPassword()">
+                                            <i class="fas fa-undo me-2"></i>Reset to Default
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="notes" class="form-label">Notes</label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Any additional notes about this user..."><%= user.notes || '' %></textarea>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="/admin/users" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Users
+                                </a>
+                                <div>
+                                    <button type="reset" class="btn btn-outline-secondary me-2">
+                                        <i class="fas fa-undo me-2"></i>Reset
+                                    </button>
+                                    <button type="submit" class="btn btn-warning">
+                                        <i class="fas fa-save me-2"></i>Update User
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- User Statistics Card -->
+                <div class="card shadow-lg border-0 mt-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-bar me-2"></i>
+                            User Statistics
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 text-center">
+                                <div class="border-end">
+                                    <h4 class="text-primary"><%= user.student_count || 0 %></h4>
+                                    <p class="text-muted mb-0">Students</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div class="border-end">
+                                    <h4 class="text-success"><%= user.registration_count || 0 %></h4>
+                                    <p class="text-muted mb-0">Registrations</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <h4 class="text-info"><%= user.notification_count || 0 %></h4>
+                                <p class="text-muted mb-0">Notifications</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <%- include('../partials/footer') %>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="/js/main.js"></script>
+    <script>
+        // Initialize AOS
+        AOS.init();
+
+        // Toggle password visibility
+        function toggleNewPassword() {
+            const passwordInput = document.getElementById('newPassword');
+            const passwordIcon = document.getElementById('newPasswordIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordIcon.classList.remove('fa-eye');
+                passwordIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                passwordIcon.classList.remove('fa-eye-slash');
+                passwordIcon.classList.add('fa-eye');
+            }
+        }
+
+        function toggleConfirmNewPassword() {
+            const confirmPasswordInput = document.getElementById('confirmNewPassword');
+            const confirmPasswordIcon = document.getElementById('confirmNewPasswordIcon');
+            
+            if (confirmPasswordInput.type === 'password') {
+                confirmPasswordInput.type = 'text';
+                confirmPasswordIcon.classList.remove('fa-eye');
+                confirmPasswordIcon.classList.add('fa-eye-slash');
+            } else {
+                confirmPasswordInput.type = 'password';
+                confirmPasswordIcon.classList.remove('fa-eye-slash');
+                confirmPasswordIcon.classList.add('fa-eye');
+            }
+        }
+
+        // Generate strong password
+        function generatePassword() {
+            const length = 12;
+            const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+            let password = "";
+            
+            for (let i = 0; i < length; i++) {
+                password += charset.charAt(Math.floor(Math.random() * charset.length));
+            }
+            
+            document.getElementById('newPassword').value = password;
+            document.getElementById('confirmNewPassword').value = password;
+            
+            // Show password
+            document.getElementById('newPassword').type = 'text';
+            document.getElementById('confirmNewPassword').type = 'text';
+            document.getElementById('newPasswordIcon').classList.remove('fa-eye');
+            document.getElementById('newPasswordIcon').classList.add('fa-eye-slash');
+            document.getElementById('confirmNewPasswordIcon').classList.remove('fa-eye');
+            document.getElementById('confirmNewPasswordIcon').classList.add('fa-eye-slash');
+        }
+
+        // Reset password to default
+        function resetPassword() {
+            if (confirm('Are you sure you want to reset the password to default?')) {
+                const defaultPassword = 'password123';
+                document.getElementById('newPassword').value = defaultPassword;
+                document.getElementById('confirmNewPassword').value = defaultPassword;
+                
+                // Show password
+                document.getElementById('newPassword').type = 'text';
+                document.getElementById('confirmNewPassword').type = 'text';
+                document.getElementById('newPasswordIcon').classList.remove('fa-eye');
+                document.getElementById('newPasswordIcon').classList.add('fa-eye-slash');
+                document.getElementById('confirmNewPasswordIcon').classList.remove('fa-eye');
+                document.getElementById('confirmNewPasswordIcon').classList.add('fa-eye-slash');
+            }
+        }
+
+        // Form validation
+        document.getElementById('editUserForm').addEventListener('submit', function(e) {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+            
+            if (newPassword || confirmNewPassword) {
+                if (newPassword !== confirmNewPassword) {
+                    e.preventDefault();
+                    alert('New passwords do not match!');
+                    return false;
+                }
+                
+                if (newPassword.length < 6) {
+                    e.preventDefault();
+                    alert('New password must be at least 6 characters long!');
+                    return false;
+                }
+            }
+        });
+
+        // Auto-fill confirm password when password changes
+        document.getElementById('newPassword').addEventListener('input', function() {
+            const password = this.value;
+            const confirmPassword = document.getElementById('confirmNewPassword');
+            
+            if (confirmPassword.value === '') {
+                confirmPassword.value = password;
+            }
+        });
+    </script>
+</body>
+</html> 

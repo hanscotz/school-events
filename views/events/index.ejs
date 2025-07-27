@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events - School Events</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="/css/style.css?v=1.0" rel="stylesheet">
+    
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-purple fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="bi bi-calendar-event me-2"></i>
+                School Events
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/events">Events</a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle me-1"></i>
+                                <%= typeof user !== 'undefined' && user ? user.firstName : 'User' %>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="/dashboard">Dashboard</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/auth/logout">Logout</a></li>
+                            </ul>
+                        </li>
+                    <% } else { %>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/auth/login">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-outline-light btn-sm ms-2" href="/auth/register">Register</a>
+                        </li>
+                    <% } %>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="display-5 fw-bold text-purple mb-2">
+                                <i class="bi bi-calendar-event me-2"></i>
+                                School Events
+                            </h1>
+                            <p class="lead text-muted">Discover and register for exciting school activities</p>
+                        </div>
+                        <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
+                            <a href="/events/admin/create" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-2"></i>
+                                Create Event
+                            </a>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Filter Section -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" class="form-control" id="searchInput" placeholder="Search events...">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select filter-select" id="eventTypeFilter">
+                        <option value="">All Event Types</option>
+                        <option value="Sports">Sports</option>
+                        <option value="Academic">Academic</option>
+                        <option value="Cultural">Cultural</option>
+                        <option value="Meeting">Meeting</option>
+                        <option value="Workshop">Workshop</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Events Grid -->
+            <div class="row g-4">
+                <% if (typeof events !== 'undefined' && events && events.length > 0) { %>
+                    <% events.forEach(function(event) { %>
+                        <div class="col-lg-4 col-md-6 searchable filterable" data-category="<%= event.event_type %>">
+                            <div class="event-card h-100" data-aos="fade-up">
+                                <div class="event-header">
+                                    <span class="event-type-badge"><%= event.event_type %></span>
+                                    <h5 class="mt-2 mb-0"><%= event.title %></h5>
+                                </div>
+                                <div class="event-body">
+                                    <div class="event-meta">
+                                        <i class="bi bi-calendar"></i>
+                                        <span><%= event.start_date %></span>
+                                    </div>
+                                    <div class="event-meta">
+                                        <i class="bi bi-geo-alt"></i>
+                                        <span><%= event.location %></span>
+                                    </div>
+                                    <div class="event-meta">
+                                        <i class="bi bi-currency-dollar"></i>
+                                        <span>Fee: $<%= event.fee %></span>
+                                    </div>
+                                    <div class="event-meta">
+                                        <i class="bi bi-people"></i>
+                                        <span><%= event.registered_count || 0 %> registered</span>
+                                    </div>
+                                    
+                                    <% if (event.is_full) { %>
+                                        <div class="alert alert-warning py-2 mt-3 mb-3">
+                                            <i class="bi bi-exclamation-triangle me-2"></i>
+                                            Event is full
+                                        </div>
+                                    <% } %>
+                                    
+                                    <div class="d-grid gap-2">
+                                        <a href="/events/<%= event.id %>" class="btn btn-primary">
+                                            <i class="bi bi-eye me-2"></i>
+                                            View Details
+                                        </a>
+                                        <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated && !event.is_full) { %>
+                                            <button class="btn btn-outline-success" onclick="showRegistrationModal('<%= event.id %>', '<%= event.title %>', '<%= event.fee %>')">
+                                                <i class="bi bi-calendar-plus me-2"></i>
+                                                Register Now
+                                            </button>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="col-12">
+                        <div class="text-center py-5">
+                            <i class="bi bi-calendar-x" style="font-size: 4rem; color: #6c757d;"></i>
+                            <h3 class="mt-3 text-muted">No Events Found</h3>
+                            <p class="text-muted">Check back later for upcoming events or try adjusting your search.</p>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </main>
+
+    <!-- Registration Modal -->
+    <div class="modal fade" id="registrationModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Register for Event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="registrationForm">
+                        <div class="mb-3">
+                            <label for="studentSelect" class="form-label">Select Student</label>
+                            <select class="form-select" id="studentSelect" name="studentId" required>
+                                <option value="">Choose a student...</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Event Details</label>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 id="modalEventTitle"></h6>
+                                    <p class="mb-1">Fee: $<span id="modalEventFee"></span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitRegistration()">Register</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5><i class="bi bi-calendar-event me-2"></i>School Events</h5>
+                    <p class="mb-0">Connecting parents with their children's school activities.</p>
+                    <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+                        <small class="text-muted">
+                            <i class="bi bi-person-check me-1"></i>
+                            Welcome back, <%= typeof user !== 'undefined' && user ? user.firstName : 'User' %>!
+                        </small>
+                    <% } %>
+                </div>
+                <div class="col-md-4">
+                    <h6>Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-light text-decoration-none">
+                            <i class="bi bi-house me-1"></i>Home
+                        </a></li>
+                        <li><a href="/events" class="text-light text-decoration-none">
+                            <i class="bi bi-calendar-event me-1"></i>Events
+                        </a></li>
+                        <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+                            <li><a href="/dashboard" class="text-light text-decoration-none">
+                                <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                            </a></li>
+                        <% } else { %>
+                            <li><a href="/auth/login" class="text-light text-decoration-none">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Login
+                            </a></li>
+                            <li><a href="/auth/register" class="text-light text-decoration-none">
+                                <i class="bi bi-person-plus me-1"></i>Register
+                            </a></li>
+                        <% } %>
+                    </ul>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <h6>Contact & Support</h6>
+                    <p class="mb-1">
+                        <i class="bi bi-envelope me-1"></i>
+                        <a href="mailto:support@schoolevents.com" class="text-light text-decoration-none">
+                            support@schoolevents.com
+                        </a>
+                    </p>
+                    <p class="mb-1">
+                        <i class="bi bi-telephone me-1"></i>
+                        <a href="tel:+1234567890" class="text-light text-decoration-none">
+                            +1 (234) 567-890
+                        </a>
+                    </p>
+                    <p class="mb-0">&copy; 2024 School Events. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS Animation JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Custom JS -->
+    <script src="/js/main.js"></script>
+    
+    <script>
+        // Initialize AOS animations
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const eventCards = document.querySelectorAll('.searchable');
+            
+            eventCards.forEach(card => {
+                const title = card.querySelector('h5').textContent.toLowerCase();
+                const type = card.querySelector('.event-type-badge').textContent.toLowerCase();
+                const location = card.querySelector('.bi-geo-alt').nextElementSibling.textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || type.includes(searchTerm) || location.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Filter functionality
+        document.getElementById('eventTypeFilter').addEventListener('change', function() {
+            const selectedType = this.value;
+            const eventCards = document.querySelectorAll('.filterable');
+            
+            eventCards.forEach(card => {
+                const eventType = card.getAttribute('data-category');
+                if (selectedType === '' || eventType === selectedType) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Registration modal functionality
+        let currentEventId = null;
+
+        function showRegistrationModal(eventId, eventTitle, eventFee) {
+            currentEventId = eventId;
+            document.getElementById('modalEventTitle').textContent = eventTitle;
+            document.getElementById('modalEventFee').textContent = eventFee;
+            
+            // Load students for the current user and this specific event
+            fetch(`/events/${eventId}/registration-students`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const select = document.getElementById('studentSelect');
+                        select.innerHTML = '<option value="">Choose a student...</option>';
+                        
+                        data.students.forEach(student => {
+                            const option = document.createElement('option');
+                            option.value = student.id;
+                            
+                            if (student.is_registered) {
+                                option.textContent = `${student.full_name} (Grade ${student.grade}) - Already Registered`;
+                                option.disabled = true;
+                                option.style.color = '#6c757d';
+                            } else {
+                                option.textContent = `${student.full_name} (Grade ${student.grade})`;
+                            }
+                            
+                            select.appendChild(option);
+                        });
+
+                        // Show/hide registration button based on available students
+                        const availableStudents = data.students.filter(student => !student.is_registered);
+                        const registerBtn = document.querySelector('#registrationModal .btn-primary');
+                        
+                        if (availableStudents.length === 0) {
+                            if (registerBtn) {
+                                registerBtn.disabled = true;
+                                registerBtn.textContent = 'All Students Registered';
+                            }
+                        } else {
+                            if (registerBtn) {
+                                registerBtn.disabled = false;
+                                registerBtn.textContent = 'Register';
+                            }
+                        }
+                    } else {
+                        console.error('Failed to load students:', data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading students:', error);
+                });
+            
+            const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
+            modal.show();
+        }
+
+        function submitRegistration() {
+            const studentId = document.getElementById('studentSelect').value;
+            if (!studentId) {
+                alert('Please select a student');
+                return;
+            }
+
+            if (!currentEventId) {
+                alert('No event selected');
+                return;
+            }
+            
+            // Submit registration
+            fetch(`/events/${currentEventId}/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    studentId: studentId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.error || 'Registration failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred during registration');
+            });
+            
+            const modal = bootstrap.Modal.getInstance(document.getElementById('registrationModal'));
+            modal.hide();
+        }
+    </script>
+</body>
+</html> 

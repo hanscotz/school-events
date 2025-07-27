@@ -1,0 +1,273 @@
+<%- include('../partials/header', { title: title, user: user, isAuthenticated: isAuthenticated }) %>
+
+<div class="container mt-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-2">
+                        <i class="bi bi-house me-2"></i>Parent Dashboard
+                    </h1>
+                    <p class="text-muted mb-0">Welcome back, <%= user.firstName %>! Manage your children's school events.</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="/parents/search-events" class="btn btn-primary">
+                        <i class="bi bi-search me-2"></i>Search Events
+                    </a>
+                    <a href="/parents/students/add" class="btn btn-success">
+                        <i class="bi bi-person-plus me-2"></i>Add Student
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-people fa-2x mb-2"></i>
+                    <h4 class="mb-1"><%= students ? students.length : 0 %></h4>
+                    <p class="mb-0">Students</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-calendar-check fa-2x mb-2"></i>
+                    <h4 class="mb-1"><%= stats ? stats.total_events : 0 %></h4>
+                    <p class="mb-0">Events Registered</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-cash-stack fa-2x mb-2"></i>
+                    <h4 class="mb-1">$<%= stats ? stats.total_fees : 0 %></h4>
+                    <p class="mb-0">Total Fees</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-clock fa-2x mb-2"></i>
+                    <h4 class="mb-1"><%= stats ? stats.pending_payments : 0 %></h4>
+                    <p class="mb-0">Pending Payments</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow bg-light">
+                <div class="card-body d-flex flex-column flex-md-row align-items-center justify-content-between">
+                    <div class="mb-2 mb-md-0">
+                        <h5 class="mb-1"><i class="bi bi-chat-dots me-2"></i>We Value Your Feedback</h5>
+                        <p class="mb-0 text-muted">Share your experience or suggestions to help us improve!</p>
+                    </div>
+                    <a href="/parents/feedback" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-pencil-square me-2"></i>Submit Feedback
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Students Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">My Students</h6>
+                    <a href="/parents/students/add" class="btn btn-primary btn-sm">
+                        <i class="bi bi-plus me-2"></i>Add Student
+                    </a>
+                </div>
+                <div class="card-body">
+                    <% if (students && students.length > 0) { %>
+                        <div class="row">
+                            <% students.forEach(student => { %>
+                                <div class="col-md-6 col-lg-4 mb-3">
+                                    <div class="card h-100">
+                                        <div class="card-body text-center">
+                                            <div class="mb-3">
+                                                <i class="bi bi-person-circle fa-3x text-primary"></i>
+                                            </div>
+                                            <h5 class="card-title"><%= student.first_name %> <%= student.last_name %></h5>
+                                            <p class="card-text text-muted">
+                                                <strong>Grade:</strong> <%= student.grade %><br>
+                                                <strong>Age:</strong> <%= student.age %>
+                                            </p>
+                                            <div class="btn-group">
+                                                <a href="/parents/students/<%= student.id %>/edit" class="btn btn-outline-primary btn-sm">
+                                                    <i class="bi bi-pencil me-1"></i>Edit
+                                                </a>
+                                                <button class="btn btn-outline-danger btn-sm" onclick="deleteStudent(<%= student.id %>)">
+                                                    <i class="bi bi-trash me-1"></i>Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-4">
+                            <i class="bi bi-people fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">No Students Added</h4>
+                            <p class="text-muted">You haven't added any students yet.</p>
+                            <a href="/parents/students/add" class="btn btn-primary">
+                                <i class="bi bi-plus me-2"></i>Add Your First Student
+                            </a>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Events -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Upcoming Events</h6>
+                </div>
+                <div class="card-body">
+                    <% if (upcomingEvents && upcomingEvents.length > 0) { %>
+                        <div class="row">
+                            <% upcomingEvents.forEach(event => { %>
+                                <div class="col-md-6 col-lg-4 mb-3">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h6 class="card-title"><%= event.title %></h6>
+                                            <p class="card-text text-muted">
+                                                <i class="bi bi-calendar me-1"></i>
+                                                <%= event.start_date %>
+                                            </p>
+                                            <p class="card-text text-muted">
+                                                <i class="bi bi-geo-alt me-1"></i>
+                                                <%= event.location %>
+                                            </p>
+                                            <span class="badge bg-primary"><%= event.event_type %></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-4">
+                            <i class="bi bi-calendar-x fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No upcoming events.</p>
+                            <a href="/events" class="btn btn-primary">Browse Events</a>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Notifications -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Recent Notifications</h6>
+                </div>
+                <div class="card-body">
+                    <% if (notifications && notifications.length > 0) { %>
+                        <div class="list-group list-group-flush">
+                            <% notifications.forEach(notification => { %>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1"><%= notification.title %></h6>
+                                        <p class="mb-1 text-muted"><%= notification.message %></p>
+                                        <small class="text-muted"><%= notification.created_at %></small>
+                                    </div>
+                                    <% if (!notification.is_read) { %>
+                                        <span class="badge bg-primary rounded-pill">New</span>
+                                    <% } %>
+                                </div>
+                            <% }) %>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-4">
+                            <i class="bi bi-bell fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No notifications yet.</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <a href="/parents/search-events" class="btn btn-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4">
+                                <i class="bi bi-search fa-2x mb-2"></i>
+                                <span>Search Events</span>
+                                <small class="text-light">Find and register for events</small>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="/parents/students/add" class="btn btn-success w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4">
+                                <i class="bi bi-person-plus fa-2x mb-2"></i>
+                                <span>Add Student</span>
+                                <small class="text-light">Register a new child</small>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="/events" class="btn btn-info w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4">
+                                <i class="bi bi-calendar-event fa-2x mb-2"></i>
+                                <span>Browse All Events</span>
+                                <small class="text-light">View all school events</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function deleteStudent(studentId) {
+    if (confirm('Are you sure you want to delete this student?')) {
+        fetch(`/parents/students/${studentId}/delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to delete student');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred');
+        });
+    }
+}
+</script>
+
+<%- include('../partials/footer', { user: user, isAuthenticated: isAuthenticated }) %> 

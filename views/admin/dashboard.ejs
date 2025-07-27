@@ -1,0 +1,368 @@
+<%- include('../partials/header', { title: title }) %>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/dashboard">
+                            <i class="bi bi-house-door me-2"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/users">
+                            <i class="bi bi-people me-2"></i>
+                            Manage Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/reports/events">
+                            <i class="bi bi-calendar-event me-2"></i>
+                            Event Reports
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/reports/financial">
+                            <i class="bi bi-currency-dollar me-2"></i>
+                            Financial Reports
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/events/admin/create">
+                            <i class="bi bi-plus-circle me-2"></i>
+                            Create Event
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/registrations">
+                            <i class="bi bi-credit-card me-2"></i>
+                            Manage Registrations
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/event-reports">
+                            <i class="bi bi-graph-up me-2"></i>
+                            Event Reports
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/users">
+                            <i class="bi bi-people me-2"></i>
+                            Manage Users
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Admin Dashboard</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary">Print</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Total Parents</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800"><%= stats.total_parents || 0 %></div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="bi bi-people fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Total Students</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800"><%= stats.total_students || 0 %></div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="bi bi-mortarboard fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-info shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                        Active Events</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800"><%= stats.active_events || 0 %></div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="bi bi-calendar-event fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-warning shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                        Total Revenue</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">$<%= stats.total_revenue || 0 %></div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="bi bi-currency-dollar fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Events -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Recent Events</h6>
+                        </div>
+                        <div class="card-body">
+                            <% if (recentEvents && recentEvents.length > 0) { %>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>Event</th>
+                                                <th>Type</th>
+                                                <th>Date</th>
+                                                <th>Registrations</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% recentEvents.forEach(event => { %>
+                                                <tr>
+                                                    <td><%= event.title %></td>
+                                                    <td><span class="badge bg-primary"><%= event.event_type %></span></td>
+                                                    <td><%= event.start_date %></td>
+                                                    <td><%= event.registration_count %></td>
+                                                    <td>
+                                                        <a href="/events/<%= event.id %>" class="btn btn-sm btn-outline-primary">
+                                                            <i class="bi bi-eye"></i>
+                                                        </a>
+                                                        <a href="/events/admin/<%= event.id %>/edit" class="btn btn-sm btn-outline-warning">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            <% }) %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            <% } else { %>
+                                <div class="text-center py-4">
+                                    <i class="bi bi-calendar-x fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">No events created yet.</p>
+                                    <a href="/events/admin/create" class="btn btn-primary">
+                                        <i class="bi bi-plus"></i> Create First Event
+                                    </a>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Registrations -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Recent Registrations</h6>
+                        </div>
+                        <div class="card-body">
+                            <% if (recentRegistrations && recentRegistrations.length > 0) { %>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>Student</th>
+                                                <th>Parent</th>
+                                                <th>Event</th>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% recentRegistrations.forEach(registration => { %>
+                                                <tr>
+                                                    <td><%= registration.student_first_name %> <%= registration.student_last_name %></td>
+                                                    <td><%= registration.parent_first_name %> <%= registration.parent_last_name %></td>
+                                                    <td><%= registration.event_title %></td>
+                                                    <td><%= registration.registration_date %></td>
+                                                    <td>
+                                                        <span class="badge bg-<%= registration.payment_status === 'paid' ? 'success' : 'warning' %>">
+                                                            <%= registration.payment_status %>
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            <% }) %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            <% } else { %>
+                                <div class="text-center py-4">
+                                    <i class="bi bi-calendar-check fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">No registrations yet.</p>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Events -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Upcoming Events</h6>
+                        </div>
+                        <div class="card-body">
+                            <% if (upcomingEvents && upcomingEvents.length > 0) { %>
+                                <div class="row">
+                                    <% upcomingEvents.forEach(event => { %>
+                                        <div class="col-md-6 col-lg-4 mb-3">
+                                            <div class="card h-100">
+                                                <div class="card-body">
+                                                    <h6 class="card-title"><%= event.title %></h6>
+                                                    <p class="card-text text-muted">
+                                                        <i class="bi bi-calendar me-1"></i>
+                                                        <%= event.start_date %>
+                                                    </p>
+                                                    <p class="card-text text-muted">
+                                                        <i class="bi bi-geo-alt me-1"></i>
+                                                        <%= event.location %>
+                                                    </p>
+                                                    <span class="badge bg-primary"><%= event.event_type %></span>
+                                                    <p class="mt-2">
+                                                        <small class="text-muted">
+                                                            <%= event.registration_count %> registrations
+                                                        </small>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <% }) %>
+                                </div>
+                            <% } else { %>
+                                <div class="text-center py-4">
+                                    <i class="bi bi-calendar-x fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">No upcoming events.</p>
+                                    <a href="/events/admin/create" class="btn btn-primary">Create Event</a>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5><i class="bi bi-calendar-event me-2"></i>School Events</h5>
+                    <p class="mb-0">Connecting parents with their children's school activities.</p>
+                    <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+                        <small class="text-muted">
+                            <i class="bi bi-person-check me-1"></i>
+                            Welcome back, <%= typeof user !== 'undefined' && user ? user.firstName : 'User' %>!
+                        </small>
+                    <% } %>
+                </div>
+                <div class="col-md-4">
+                    <h6>Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-light text-decoration-none">
+                            <i class="bi bi-house me-1"></i>Home
+                        </a></li>
+                        <li><a href="/events" class="text-light text-decoration-none">
+                            <i class="bi bi-calendar-event me-1"></i>Events
+                        </a></li>
+                        <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+                            <li><a href="/dashboard" class="text-light text-decoration-none">
+                                <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                            </a></li>
+                        <% } else { %>
+                            <li><a href="/auth/login" class="text-light text-decoration-none">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Login
+                            </a></li>
+                            <li><a href="/auth/register" class="text-light text-decoration-none">
+                                <i class="bi bi-person-plus me-1"></i>Register
+                            </a></li>
+                        <% } %>
+                    </ul>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <h6>Contact & Support</h6>
+                    <p class="mb-1">
+                        <i class="bi bi-envelope me-1"></i>
+                        <a href="mailto:support@schoolevents.com" class="text-light text-decoration-none">
+                            support@schoolevents.com
+                        </a>
+                    </p>
+                    <p class="mb-1">
+                        <i class="bi bi-telephone me-1"></i>
+                        <a href="tel:+1234567890" class="text-light text-decoration-none">
+                            +1 (234) 567-890
+                        </a>
+                    </p>
+                    <p class="mb-0">&copy; 2024 School Events. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS Animation JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Custom JS -->
+    <script src="/js/main.js"></script>
+    
+    <script>
+        // Initialize AOS animations
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+    </script>
+</body>
+</html> 

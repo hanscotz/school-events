@@ -1,0 +1,103 @@
+<%- include('../partials/header', { title: title, user: user, isAuthenticated: isAuthenticated }) %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-bell me-2"></i>Notifications</h2>
+                <button class="btn btn-outline-primary" onclick="markAllAsRead()">
+                    <i class="bi bi-check-all me-2"></i>Mark All as Read
+                </button>
+            </div>
+            
+            <% if (notifications && notifications.length > 0) { %>
+                <div class="row">
+                    <% notifications.forEach(notification => { %>
+                        <div class="col-12 mb-3">
+                            <div class="card shadow-sm <%= !notification.is_read ? 'border-primary' : '' %>">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <h5 class="card-title mb-2">
+                                                <%= notification.title %>
+                                                <% if (!notification.is_read) { %>
+                                                    <span class="badge bg-primary ms-2">New</span>
+                                                <% } %>
+                                            </h5>
+                                            <p class="card-text text-muted mb-2"><%= notification.message %></p>
+                                            <small class="text-muted">
+                                                <i class="bi bi-clock me-1"></i>
+                                                <%= notification.created_at %>
+                                            </small>
+                                        </div>
+                                        <div class="ms-3">
+                                            <% if (!notification.is_read) { %>
+                                                <button class="btn btn-sm btn-outline-success" onclick="markAsRead(<%= notification.id %>)">
+                                                    <i class="bi bi-check"></i>
+                                                </button>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            <% } else { %>
+                <div class="text-center py-5">
+                    <i class="bi bi-bell-slash fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">No Notifications</h4>
+                    <p class="text-muted">You don't have any notifications at the moment.</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<script>
+function markAsRead(notificationId) {
+    fetch(`/parents/notifications/${notificationId}/read`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Failed to mark notification as read');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred');
+    });
+}
+
+function markAllAsRead() {
+    if (confirm('Mark all notifications as read?')) {
+        fetch('/parents/notifications/read-all', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to mark notifications as read');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred');
+        });
+    }
+}
+</script>
+
+<%- include('../partials/footer', { user: user, isAuthenticated: isAuthenticated }) %> 

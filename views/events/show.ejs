@@ -1,0 +1,342 @@
+<%- include('../partials/header', { title: title }) %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Event Details -->
+            <div class="card shadow">
+                <div class="card-header bg-purple text-white">
+                    <h2 class="mb-0"><%= event.title %></h2>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p><i class="bi bi-calendar-event me-2"></i><strong>Date:</strong> <%= event.start_date %></p>
+                            <p><i class="bi bi-geo-alt me-2"></i><strong>Location:</strong> <%= event.location %></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><i class="bi bi-tag me-2"></i><strong>Type:</strong> <span class="badge bg-primary"><%= event.event_type %></span></p>
+                            <p><i class="bi bi-currency-dollar me-2"></i><strong>Fee:</strong> $<%= event.fee %></p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h5>Description</h5>
+                        <p><%= event.description %></p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h5>Event Details</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-people me-2"></i><strong>Registered:</strong> <%= event.registered_count %> students</li>
+                            <li><i class="bi bi-person me-2"></i><strong>Created by:</strong> <%= event.created_by_name %></li>
+                        </ul>
+                    </div>
+                    
+                    <% if (isAuthenticated && user.role === 'parent') { %>
+                        <div class="text-center">
+                            <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#registerModal">
+                                <i class="bi bi-calendar-plus me-2"></i>Register Student
+                            </button>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Registration Status -->
+            <% if (isAuthenticated && user.role === 'parent') { %>
+                <div class="card shadow mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Registration Status</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center">
+                            <i class="bi bi-calendar-check fa-3x text-success mb-3"></i>
+                            <h6>Ready to Register</h6>
+                            <p class="text-muted">Click the button below to register your student for this event.</p>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+            
+            <!-- Event Info -->
+            <div class="card shadow">
+                <div class="card-header">
+                    <h5 class="mb-0">Event Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Event Type:</strong><br>
+                        <span class="badge bg-primary"><%= event.event_type %></span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Participation Fee:</strong><br>
+                        <span class="text-success fw-bold">$<%= event.fee %></span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Registration Deadline:</strong><br>
+                        <span class="text-muted">Until event date</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Registrations List (Admin Only) -->
+    <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated && typeof user !== 'undefined' && user && user.role === 'admin' && typeof registrations !== 'undefined' && registrations && registrations.length > 0) { %>
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h5 class="mb-0">Registered Students</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Student Name</th>
+                                        <th>Parent Name</th>
+                                        <th>Registration Date</th>
+                                        <th>Payment Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% registrations.forEach(registration => { %>
+                                        <tr>
+                                            <td><%= registration.student_first_name %> <%= registration.student_last_name %></td>
+                                            <td><%= registration.parent_first_name %> <%= registration.parent_last_name %></td>
+                                            <td><%= new Date(registration.registration_date).toLocaleDateString() %></td>
+                                            <td>
+                                                <span class="badge bg-<%= registration.payment_status === 'paid' ? 'success' : 'warning' %>">
+                                                    <%= registration.payment_status %>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% } %>
+</div>
+
+<!-- Registration Modal -->
+<% if (typeof isAuthenticated !== 'undefined' && isAuthenticated && typeof user !== 'undefined' && user && user.role === 'parent') { %>
+    <div class="modal fade" id="registerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Register Student for Event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="/events/<%= typeof event !== 'undefined' ? event.id : '' %>/register" method="POST">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="studentId" class="form-label">Select Student</label>
+                            <select class="form-select" id="studentId" name="studentId" required>
+                                <option value="">Choose a student...</option>
+                                <!-- This will be populated with JavaScript -->
+                            </select>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Event Fee:</strong> $<%= typeof event !== 'undefined' ? event.fee : '0' %><br>
+                            <small>Payment will be collected at the event.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Register Student</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+<% } %>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5><i class="bi bi-calendar-event me-2"></i>School Events</h5>
+                    <p class="mb-0">Connecting parents with their children's school activities.</p>
+                    <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+                        <small class="text-muted">
+                            <i class="bi bi-person-check me-1"></i>
+                            Welcome back, <%= typeof user !== 'undefined' && user ? user.firstName : 'User' %>!
+                        </small>
+                    <% } %>
+                </div>
+                <div class="col-md-4">
+                    <h6>Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-light text-decoration-none">
+                            <i class="bi bi-house me-1"></i>Home
+                        </a></li>
+                        <li><a href="/events" class="text-light text-decoration-none">
+                            <i class="bi bi-calendar-event me-1"></i>Events
+                        </a></li>
+                        <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+                            <li><a href="/dashboard" class="text-light text-decoration-none">
+                                <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                            </a></li>
+                        <% } else { %>
+                            <li><a href="/auth/login" class="text-light text-decoration-none">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Login
+                            </a></li>
+                            <li><a href="/auth/register" class="text-light text-decoration-none">
+                                <i class="bi bi-person-plus me-1"></i>Register
+                            </a></li>
+                        <% } %>
+                    </ul>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <h6>Contact & Support</h6>
+                    <p class="mb-1">
+                        <i class="bi bi-envelope me-1"></i>
+                        <a href="mailto:support@schoolevents.com" class="text-light text-decoration-none">
+                            support@schoolevents.com
+                        </a>
+                    </p>
+                    <p class="mb-1">
+                        <i class="bi bi-telephone me-1"></i>
+                        <a href="tel:+1234567890" class="text-light text-decoration-none">
+                            +1 (234) 567-890
+                        </a>
+                    </p>
+                    <p class="mb-0">&copy; 2024 School Events. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS Animation JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Custom JS -->
+    <script src="/js/main.js"></script>
+    
+    <script>
+        // Initialize AOS animations
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+
+        // Load student list for registration modal
+        <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated && typeof user !== 'undefined' && user && user.role === 'parent') { %>
+        document.addEventListener('DOMContentLoaded', function() {
+            const eventId = '<%= typeof event !== "undefined" ? event.id : "" %>';
+            loadParentStudents(eventId);
+        });
+
+        function loadParentStudents(eventId) {
+            console.log('Loading students for event:', eventId);
+            fetch(`/events/${eventId}/registration-students`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Response data:', data);
+                    if (data.success) {
+                        const select = document.getElementById('studentId');
+                        select.innerHTML = '<option value="">Choose a student...</option>';
+                        
+                        console.log('Students found:', data.students.length);
+                        data.students.forEach(student => {
+                            console.log('Processing student:', student);
+                            const option = document.createElement('option');
+                            option.value = student.id;
+                            
+                            if (student.is_registered) {
+                                option.textContent = `${student.full_name} (Grade ${student.grade}) - Already Registered`;
+                                option.disabled = true;
+                                option.style.color = '#6c757d';
+                            } else {
+                                option.textContent = `${student.full_name} (Grade ${student.grade})`;
+                            }
+                            
+                            select.appendChild(option);
+                        });
+
+                        // Show/hide registration button based on available students
+                        const availableStudents = data.students.filter(student => !student.is_registered);
+                        const registerBtn = document.querySelector('#registerModal .btn-primary');
+                        
+                        if (availableStudents.length === 0) {
+                            if (registerBtn) {
+                                registerBtn.disabled = true;
+                                registerBtn.textContent = 'All Students Registered';
+                            }
+                        } else {
+                            if (registerBtn) {
+                                registerBtn.disabled = false;
+                                registerBtn.textContent = 'Register Student';
+                            }
+                        }
+                    } else {
+                        console.error('Failed to load students:', data.error);
+                        // Show error message to user
+                        const select = document.getElementById('studentId');
+                        select.innerHTML = '<option value="">Error loading students</option>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading students:', error);
+                    // Show error message to user
+                    const select = document.getElementById('studentId');
+                    select.innerHTML = '<option value="">Error loading students</option>';
+                });
+        }
+
+        // Handle registration form submission
+        document.addEventListener('DOMContentLoaded', function() {
+            const registrationForm = document.querySelector('#registerModal form');
+            if (registrationForm) {
+                registrationForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(this);
+                    const studentId = formData.get('studentId');
+                    
+                    if (!studentId) {
+                        alert('Please select a student');
+                        return;
+                    }
+
+                    fetch(this.action, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            studentId: studentId
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(data.message);
+                            location.reload();
+                        } else {
+                            alert(data.error || 'Registration failed');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred during registration');
+                    });
+                });
+            }
+        });
+        <% } %>
+    </script>
+</body>
+</html> 

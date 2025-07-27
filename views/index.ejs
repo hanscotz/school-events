@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Events - Welcome</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="/css/style.css?v=1.0" rel="stylesheet">
+    
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-purple fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="bi bi-calendar-event me-2"></i>
+                School Events
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/events">Events</a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/login">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-outline-light btn-sm ms-2" href="/auth/register">Register</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 hero-content" data-aos="fade-right">
+                        <h1 class="hero-title">Stay Connected with Your Child's School Events</h1>
+                        <p class="hero-subtitle">
+                            Get real-time updates, register for events, and never miss important school activities. 
+                            Our platform keeps parents informed and engaged with their children's educational journey.
+                        </p>
+                        <div class="hero-buttons">
+                            <a href="/auth/register" class="btn btn-light btn-lg me-3">
+                                <i class="bi bi-person-plus me-2"></i>Get Started
+                            </a>
+                            <a href="/auth/login" class="btn btn-outline-light btn-lg">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-6" data-aos="fade-left">
+                        <div class="hero-image text-center">
+                            <i class="bi bi-calendar-check" style="font-size: 15rem; opacity: 0.8;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features-section">
+            <div class="container">
+                <div class="row text-center mb-5">
+                    <div class="col-12" data-aos="fade-up">
+                        <h2 class="display-4 fw-bold text-purple mb-3">Why Choose School Events?</h2>
+                        <p class="lead text-muted">Everything you need to stay connected with your child's school activities</p>
+                    </div>
+                </div>
+                
+                <div class="row g-4">
+                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="bi bi-bell"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">Real-time Notifications</h4>
+                            <p class="text-muted">
+                                Get instant email notifications about new events, registration confirmations, 
+                                and important updates about your child's activities.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="bi bi-calendar-plus"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">Easy Event Registration</h4>
+                            <p class="text-muted">
+                                Register your child for events with just a few clicks. Track registrations, 
+                                manage payments, and view event details all in one place.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="bi bi-graph-up"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">Progress Tracking</h4>
+                            <p class="text-muted">
+                                Monitor your child's participation in school events, view attendance records, 
+                                and track their involvement in various activities.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="bi bi-shield-check"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">Secure & Private</h4>
+                            <p class="text-muted">
+                                Your family's information is protected with industry-standard security. 
+                                Only authorized parents can access their children's data.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="500">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="bi bi-people"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">Community Engagement</h4>
+                            <p class="text-muted">
+                                Connect with other parents, share experiences, and build a stronger 
+                                school community through active participation in events.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="600">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="bi bi-phone"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">Mobile Friendly</h4>
+                            <p class="text-muted">
+                                Access the platform from any device. Stay updated on the go with 
+                                our responsive design that works on phones, tablets, and computers.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="how-it-works-section">
+            <div class="container">
+                <div class="row text-center mb-5">
+                    <div class="col-12" data-aos="fade-up">
+                        <h2 class="display-4 fw-bold text-purple mb-3">How It Works</h2>
+                        <p class="lead text-muted">Simple steps to get started with School Events</p>
+                    </div>
+                </div>
+                
+                <div class="row g-4">
+                    <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                        <div class="step-card text-center">
+                            <div class="step-number">1</div>
+                            <h5 class="fw-bold mb-3">Create Account</h5>
+                            <p class="text-muted">Sign up with your email and create your parent profile</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                        <div class="step-card text-center">
+                            <div class="step-number">2</div>
+                            <h5 class="fw-bold mb-3">Add Students</h5>
+                            <p class="text-muted">Add your children's information to your account</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                        <div class="step-card text-center">
+                            <div class="step-number">3</div>
+                            <h5 class="fw-bold mb-3">Browse Events</h5>
+                            <p class="text-muted">Explore upcoming school events and activities</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                        <div class="step-card text-center">
+                            <div class="step-number">4</div>
+                            <h5 class="fw-bold mb-3">Register & Participate</h5>
+                            <p class="text-muted">Register your child for events and stay updated</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Events Section -->
+        <section class="recent-events-section">
+            <div class="container">
+                <div class="row text-center mb-5">
+                    <div class="col-12" data-aos="fade-up">
+                        <h2 class="display-4 fw-bold text-purple mb-3">Recent School Events</h2>
+                        <p class="lead text-muted">Check out some of our recent and upcoming events</p>
+                    </div>
+                </div>
+                
+                <div class="row g-4">
+                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                        <div class="event-card">
+                            <div class="event-badge">Academic</div>
+                            <h5 class="fw-bold mb-2">Science Fair 2024</h5>
+                            <p class="text-muted mb-3">Students showcase their scientific projects and innovations</p>
+                            <div class="event-meta">
+                                <span class="event-date"><i class="bi bi-calendar me-1"></i>March 15, 2024</span>
+                                <span class="event-location"><i class="bi bi-geo-alt me-1"></i>School Gymnasium</span>
+                            </div>
+                            <div class="event-footer">
+                                <span class="event-fee">Free</span>
+                                <a href="/events" class="btn btn-primary btn-sm">Learn More</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                        <div class="event-card">
+                            <div class="event-badge">Sports</div>
+                            <h5 class="fw-bold mb-2">Annual Sports Day</h5>
+                            <p class="text-muted mb-3">A day filled with athletic competitions and team sports</p>
+                            <div class="event-meta">
+                                <span class="event-date"><i class="bi bi-calendar me-1"></i>April 20, 2024</span>
+                                <span class="event-location"><i class="bi bi-geo-alt me-1"></i>School Grounds</span>
+                            </div>
+                            <div class="event-footer">
+                                <span class="event-fee">$10</span>
+                                <a href="/events" class="btn btn-primary btn-sm">Learn More</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                        <div class="event-card">
+                            <div class="event-badge">Cultural</div>
+                            <h5 class="fw-bold mb-2">Cultural Festival</h5>
+                            <p class="text-muted mb-3">Celebrate diversity through music, dance, and art</p>
+                            <div class="event-meta">
+                                <span class="event-date"><i class="bi bi-calendar me-1"></i>May 10, 2024</span>
+                                <span class="event-location"><i class="bi bi-geo-alt me-1"></i>Auditorium</span>
+                            </div>
+                            <div class="event-footer">
+                                <span class="event-fee">$15</span>
+                                <a href="/events" class="btn btn-primary btn-sm">Learn More</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-5">
+                    <div class="col-12 text-center">
+                        <a href="/events" class="btn btn-primary btn-lg">
+                            <i class="bi bi-calendar-event me-2"></i>View All Events
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- What Parents Say Section -->
+        <section class="testimonials-section bg-light py-5">
+            <div class="container">
+                <div class="row text-center mb-4">
+                    <div class="col-12" data-aos="fade-up">
+                        <h2 class="fw-bold text-purple mb-3"><i class="bi bi-chat-dots me-2"></i>What Parents Say</h2>
+                        <p class="lead text-muted">Hear from parents who use our platform</p>
+                    </div>
+                </div>
+                <% if (feedback && feedback.length > 0) { %>
+                    <div class="row justify-content-center">
+                        <% feedback.forEach(fb => { %>
+                            <div class="col-md-6 col-lg-4 mb-4" data-aos="fade-up">
+                                <div class="card h-100 shadow-sm">
+                                    <div class="card-body">
+                                        <div class="mb-2">
+                                            <% if (fb.rating) { %>
+                                                <% for (let i = 1; i <= 5; i++) { %>
+                                                    <i class="bi bi-star-fill <%= i <= fb.rating ? 'text-warning' : 'text-secondary' %>"></i>
+                                                <% } %>
+                                            <% } %>
+                                        </div>
+                                        <blockquote class="blockquote mb-2">
+                                            <p class="mb-0">“<%= fb.message %>”</p>
+                                        </blockquote>
+                                        <footer class="blockquote-footer">
+                                            <strong><%= fb.first_name %> <%= fb.last_name.charAt(0) %>.</strong>
+                                            <br>
+                                            <small class="text-muted"><i class="bi bi-clock me-1"></i><%= new Date(fb.created_at).toLocaleDateString() %></small>
+                                        </footer>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } else { %>
+                    <div class="alert alert-info text-center">No parent feedback yet. Be the first to share your experience!</div>
+                <% } %>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5><i class="bi bi-calendar-event me-2"></i>School Events</h5>
+                    <p class="mb-0">Connecting parents with their children's school activities.</p>
+                    <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+                        <small class="text-muted">
+                            <i class="bi bi-person-check me-1"></i>
+                            Welcome back, <%= typeof user !== 'undefined' && user ? user.firstName : 'User' %>!
+                        </small>
+                    <% } %>
+                </div>
+                <div class="col-md-4">
+                    <h6>Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-light text-decoration-none">
+                            <i class="bi bi-house me-1"></i>Home
+                        </a></li>
+                        <li><a href="/events" class="text-light text-decoration-none">
+                            <i class="bi bi-calendar-event me-1"></i>Events
+                        </a></li>
+                        <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+                            <li><a href="/dashboard" class="text-light text-decoration-none">
+                                <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                            </a></li>
+                        <% } else { %>
+                            <li><a href="/auth/login" class="text-light text-decoration-none">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Login
+                            </a></li>
+                            <li><a href="/auth/register" class="text-light text-decoration-none">
+                                <i class="bi bi-person-plus me-1"></i>Register
+                            </a></li>
+                        <% } %>
+                    </ul>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <h6>Contact & Support</h6>
+                    <p class="mb-1">
+                        <i class="bi bi-envelope me-1"></i>
+                        <a href="mailto:support@schoolevents.com" class="text-light text-decoration-none">
+                            support@schoolevents.com
+                        </a>
+                    </p>
+                    <p class="mb-1">
+                        <i class="bi bi-telephone me-1"></i>
+                        <a href="tel:+1234567890" class="text-light text-decoration-none">
+                            +1 (234) 567-890
+                        </a>
+                    </p>
+                    <p class="mb-0">&copy; 2024 School Events. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS Animation JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Custom JS -->
+    <script src="/js/main.js"></script>
+    
+    <script>
+        // Initialize AOS animations
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+    </script>
+</body>
+</html> 

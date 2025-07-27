@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Reports - School Events</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <%- include('../partials/header') %>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-lg border-0" data-aos="fade-up">
+                    <div class="card-header bg-success text-white">
+                        <h3 class="mb-0">
+                            <i class="fas fa-chart-line me-2"></i>
+                            Financial Reports
+                        </h3>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Summary Cards -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="card bg-primary text-white">
+                                    <div class="card-body text-center">
+                                        <h4 class="mb-0">$<span id="totalRevenue">0</span></h4>
+                                        <small>Total Revenue</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-success text-white">
+                                    <div class="card-body text-center">
+                                        <h4 class="mb-0"><span id="paidRegistrations">0</span></h4>
+                                        <small>Paid Registrations</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-warning text-dark">
+                                    <div class="card-body text-center">
+                                        <h4 class="mb-0"><span id="pendingPayments">0</span></h4>
+                                        <small>Pending Payments</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-info text-white">
+                                    <div class="card-body text-center">
+                                        <h4 class="mb-0"><span id="totalRegistrations">0</span></h4>
+                                        <small>Total Registrations</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Filters -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <label for="eventFilter" class="form-label">Filter by Event</label>
+                                <select class="form-select" id="eventFilter">
+                                    <option value="">All Events</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="dateFrom" class="form-label">From Date</label>
+                                <input type="date" class="form-control" id="dateFrom">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="dateTo" class="form-label">To Date</label>
+                                <input type="date" class="form-control" id="dateTo">
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button class="btn btn-outline-success" onclick="loadFinancialData()">
+                                    <i class="fas fa-refresh me-2"></i>Update Report
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Payment Status Chart -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Payment Status Distribution</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="paymentStatusChart" width="400" height="200"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Revenue by Event</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="revenueChart" width="400" height="200"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Detailed Reports Table -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Detailed Payment Report</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>Event</th>
+                                                <th>Student</th>
+                                                <th>Parent</th>
+                                                <th>Registration Date</th>
+                                                <th>Payment Status</th>
+                                                <th>Amount</th>
+                                                <th>Payment Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="financialTable">
+                                            <!-- Data will be loaded dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <%- include('../partials/footer') %>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/main.js"></script>
+    <script>
+        // Initialize AOS
+        AOS.init();
+
+        let paymentStatusChart, revenueChart;
+
+        // Load financial data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFinancialData();
+        });
+
+        // Load financial data
+        function loadFinancialData() {
+            const eventFilter = document.getElementById('eventFilter').value;
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+
+            fetch(`/admin/financial-reports/data?event=${eventFilter}&dateFrom=${dateFrom}&dateTo=${dateTo}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateSummaryCards(data.summary);
+                        updateCharts(data.charts);
+                        updateFinancialTable(data.details);
+                    } else {
+                        console.error('Failed to load financial data:', data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        // Update summary cards
+        function updateSummaryCards(summary) {
+            document.getElementById('totalRevenue').textContent = summary.totalRevenue.toFixed(2);
+            document.getElementById('paidRegistrations').textContent = summary.paidRegistrations;
+            document.getElementById('pendingPayments').textContent = summary.pendingPayments;
+            document.getElementById('totalRegistrations').textContent = summary.totalRegistrations;
+        }
+
+        // Update charts
+        function updateCharts(charts) {
+            // Payment Status Chart
+            if (paymentStatusChart) {
+                paymentStatusChart.destroy();
+            }
+            
+            const paymentCtx = document.getElementById('paymentStatusChart').getContext('2d');
+            paymentStatusChart = new Chart(paymentCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: charts.paymentStatus.labels,
+                    datasets: [{
+                        data: charts.paymentStatus.data,
+                        backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Revenue Chart
+            if (revenueChart) {
+                revenueChart.destroy();
+            }
+            
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            revenueChart = new Chart(revenueCtx, {
+                type: 'bar',
+                data: {
+                    labels: charts.revenue.labels,
+                    datasets: [{
+                        label: 'Revenue ($)',
+                        data: charts.revenue.data,
+                        backgroundColor: '#007bff',
+                        borderColor: '#0056b3',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update financial table
+        function updateFinancialTable(details) {
+            const tbody = document.getElementById('financialTable');
+            
+            tbody.innerHTML = details.map(item => `
+                <tr>
+                    <td><strong>${item.event_title}</strong></td>
+                    <td>${item.student_name}</td>
+                    <td>${item.parent_name}</td>
+                    <td>${new Date(item.registration_date).toLocaleDateString()}</td>
+                    <td>
+                        <span class="badge bg-${getStatusColor(item.payment_status)}">
+                            ${item.payment_status.charAt(0).toUpperCase() + item.payment_status.slice(1)}
+                        </span>
+                    </td>
+                    <td>$${item.payment_amount || '0.00'}</td>
+                    <td>${item.payment_date ? new Date(item.payment_date).toLocaleDateString() : 'N/A'}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Get status color for badges
+        function getStatusColor(status) {
+            switch(status) {
+                case 'paid': return 'success';
+                case 'pending': return 'warning';
+                case 'cancelled': return 'danger';
+                default: return 'secondary';
+            }
+        }
+    </script>
+</body>
+</html> 

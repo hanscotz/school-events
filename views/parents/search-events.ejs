@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title : 'Search Events' %> - School Events</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="/css/style.css?v=1.0" rel="stylesheet">
+    
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-purple fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="bi bi-calendar-event me-2"></i>
+                School Events
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/events">Events</a>
+                    </li>
+                    <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dashboard">Dashboard</a>
+                        </li>
+                        <% if (typeof user !== 'undefined' && user && user.role === 'parent') { %>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-people me-1"></i>Parent
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="/parents/dashboard">
+                                        <i class="bi bi-house me-2"></i>Parent Dashboard
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/parents/students">
+                                        <i class="bi bi-person-badge me-2"></i>My Students
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/parents/search-events">
+                                        <i class="bi bi-search me-2"></i>Search Events
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/parents/registrations">
+                                        <i class="bi bi-calendar-check me-2"></i>My Registrations
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/parents/notifications">
+                                        <i class="bi bi-bell me-2"></i>Notifications
+                                    </a></li>
+                                </ul>
+                            </li>
+                        <% } %>
+                    <% } %>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+                        <!-- Notification Bell for Parents -->
+                        <% if (typeof user !== 'undefined' && user && user.role === 'parent') { %>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-bell me-1"></i>
+                                    <span class="badge bg-danger notification-badge" id="notificationCount" style="display: none;">0</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end notification-dropdown">
+                                    <li><h6 class="dropdown-header">
+                                        <i class="bi bi-bell me-2"></i>Notifications
+                                    </h6></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="/parents/notifications">
+                                        <i class="bi bi-eye me-2"></i>View All Notifications
+                                    </a></li>
+                                </ul>
+                            </li>
+                        <% } %>
+                        
+                        <!-- User Profile Dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle me-1"></i>
+                                <%= typeof user !== 'undefined' && user ? user.firstName : 'User' %>
+                                <% if (typeof user !== 'undefined' && user && user.role === 'parent') { %>
+                                    <span class="badge bg-info ms-1">Parent</span>
+                                <% } %>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="/auth/profile">
+                                    <i class="bi bi-person me-2"></i>My Profile
+                                </a></li>
+                                <li><a class="dropdown-item" href="/dashboard">
+                                    <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="/auth/logout">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Logout
+                                </a></li>
+                            </ul>
+                        </li>
+                    <% } else { %>
+                        <!-- Guest User Navigation -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/auth/login">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-outline-light btn-sm ms-2" href="/auth/register">
+                                <i class="bi bi-person-plus me-1"></i>Register
+                            </a>
+                        </li>
+                    <% } %>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Flash Messages -->
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle me-2"></i>
+                <%= success %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <% } %>
+        
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <%= error %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <% } %>
+
+        <div class="container mt-4">
+            <!-- Page Header -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h2 mb-2">
+                                <i class="bi bi-search me-2"></i>Search Events
+                            </h1>
+                            <p class="text-muted mb-0">Find and register your children for school events</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary" onclick="toggleAdvancedFilters()">
+                                <i class="bi bi-funnel me-1"></i>Advanced Filters
+                            </button>
+                            <button class="btn btn-primary" onclick="resetFilters()">
+                                <i class="bi bi-arrow-clockwise me-1"></i>Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Filter Form -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <form id="searchForm" method="GET" action="/parents/search-events">
+                        <div class="row g-3">
+                            <!-- Basic Search -->
+                            <div class="col-md-6">
+                                <label for="searchTerm" class="form-label">
+                                    <i class="bi bi-search me-1"></i>Search Events
+                                </label>
+                                <input type="text" class="form-control" id="searchTerm" name="searchTerm" 
+                                       placeholder="Search by title, description, location, or event type..."
+                                       value="<%= typeof filters !== 'undefined' && filters.searchTerm ? filters.searchTerm : '' %>">
+                            </div>
+
+                            <!-- Student Filter -->
+                            <div class="col-md-3">
+                                <label for="studentId" class="form-label">
+                                    <i class="bi bi-person me-1"></i>Student
+                                </label>
+                                <select class="form-select" id="studentId" name="studentId">
+                                    <option value="">All Students</option>
+                                    <% if (typeof students !== 'undefined' && students) { %>
+                                        <% students.forEach(student => { %>
+                                            <option value="<%= student.id %>" 
+                                                    <%= typeof filters !== 'undefined' && filters.studentId == student.id ? 'selected' : '' %>>
+                                                <%= student.first_name %> <%= student.last_name %> (Grade <%= student.grade %>)
+                                            </option>
+                                        <% }) %>
+                                    <% } %>
+                                </select>
+                            </div>
+
+                            <!-- Event Type Filter -->
+                            <div class="col-md-3">
+                                <label for="eventType" class="form-label">
+                                    <i class="bi bi-tag me-1"></i>Event Type
+                                </label>
+                                <select class="form-select" id="eventType" name="eventType">
+                                    <option value="">All Types</option>
+                                    <% if (typeof eventTypes !== 'undefined' && eventTypes) { %>
+                                        <% eventTypes.forEach(type => { %>
+                                            <option value="<%= type %>" 
+                                                    <%= typeof filters !== 'undefined' && filters.eventType === type ? 'selected' : '' %>>
+                                                <%= type %>
+                                            </option>
+                                        <% }) %>
+                                    <% } %>
+                                </select>
+                            </div>
+
+                            <!-- Advanced Filters (Hidden by default) -->
+                            <div id="advancedFilters" class="col-12" style="display: none;">
+                                <hr>
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <label for="dateFrom" class="form-label">
+                                            <i class="bi bi-calendar me-1"></i>From Date
+                                        </label>
+                                        <input type="date" class="form-control" id="dateFrom" name="dateFrom"
+                                               value="<%= typeof filters !== 'undefined' && filters.dateFrom ? filters.dateFrom : '' %>">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="dateTo" class="form-label">
+                                            <i class="bi bi-calendar me-1"></i>To Date
+                                        </label>
+                                        <input type="date" class="form-control" id="dateTo" name="dateTo"
+                                               value="<%= typeof filters !== 'undefined' && filters.dateTo ? filters.dateTo : '' %>">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="status" class="form-label">
+                                            <i class="bi bi-check-circle me-1"></i>Status
+                                        </label>
+                                        <select class="form-select" id="status" name="status">
+                                            <option value="">All Status</option>
+                                            <option value="registered" <%= typeof filters !== 'undefined' && filters.status === 'registered' ? 'selected' : '' %>>Registered</option>
+                                            <option value="not_registered" <%= typeof filters !== 'undefined' && filters.status === 'not_registered' ? 'selected' : '' %>>Not Registered</option>
+                                            <option value="paid" <%= typeof filters !== 'undefined' && filters.status === 'paid' ? 'selected' : '' %>>Paid</option>
+                                            <option value="pending" <%= typeof filters !== 'undefined' && filters.status === 'pending' ? 'selected' : '' %>>Pending Payment</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="sortBy" class="form-label">
+                                            <i class="bi bi-sort-down me-1"></i>Sort By
+                                        </label>
+                                        <select class="form-select" id="sortBy" name="sortBy">
+                                            <option value="start_date" <%= typeof filters !== 'undefined' && filters.sortBy === 'start_date' ? 'selected' : '' %>>Date</option>
+                                            <option value="title" <%= typeof filters !== 'undefined' && filters.sortBy === 'title' ? 'selected' : '' %>>Title</option>
+                                            <option value="event_type" <%= typeof filters !== 'undefined' && filters.sortBy === 'event_type' ? 'selected' : '' %>>Event Type</option>
+                                            <option value="location" <%= typeof filters !== 'undefined' && filters.sortBy === 'location' ? 'selected' : '' %>>Location</option>
+                                            <option value="fee" <%= typeof filters !== 'undefined' && filters.sortBy === 'fee' ? 'selected' : '' %>>Fee</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Search Button -->
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-search me-2"></i>Search Events
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Results Summary -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1">Search Results</h5>
+                            <p class="text-muted mb-0">
+                                Found <strong><%= typeof events !== 'undefined' && events.all ? events.all.length : 0 %></strong> events
+                                <% if (typeof events !== 'undefined' && events.registered && events.registered.length > 0) { %>
+                                    (<%= events.registered.length %> registered, <%= events.available.length %> available)
+                                <% } %>
+                            </p>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <input type="radio" class="btn-check" name="viewMode" id="viewAll" value="all" checked>
+                            <label class="btn btn-outline-primary" for="viewAll">All Events</label>
+                            
+                            <input type="radio" class="btn-check" name="viewMode" id="viewRegistered" value="registered">
+                            <label class="btn btn-outline-success" for="viewRegistered">Registered</label>
+                            
+                            <input type="radio" class="btn-check" name="viewMode" id="viewAvailable" value="available">
+                            <label class="btn btn-outline-info" for="viewAvailable">Available</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Events Results -->
+            <div id="eventsContainer">
+                <!-- All Events View -->
+                <div id="allEvents" class="view-section">
+                    <% if (typeof events !== 'undefined' && events.all && events.all.length > 0) { %>
+                        <div class="row g-4">
+                            <% events.all.forEach(event => { %>
+                                <div class="col-md-6 col-lg-4 event-card" data-category="<%= event.is_registered ? 'registered' : 'available' %>">
+                                    <div class="card h-100 shadow-sm <%= event.is_registered ? 'border-success' : 'border-primary' %>">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <span class="badge bg-<%= event.is_registered ? 'success' : 'primary' %>">
+                                                <%= event.is_registered ? 'Registered' : 'Available' %>
+                                            </span>
+                                            <span class="badge bg-secondary"><%= event.event_type %></span>
+                                        </div>
+                                        <div class="card-body">
+                                            <h5 class="card-title"><%= event.title %></h5>
+                                            <p class="card-text text-muted"><%= event.description.substring(0, 100) %>...</p>
+                                            
+                                            <div class="mb-3">
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <i class="bi bi-calendar text-primary me-2"></i>
+                                                    <small><%= event.start_date %></small>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <i class="bi bi-geo-alt text-primary me-2"></i>
+                                                    <small><%= event.location %></small>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <i class="bi bi-cash text-primary me-2"></i>
+                                                    <small>Fee: $<%= event.fee %></small>
+                                                </div>
+                                                <% if (event.is_registered && event.student_name) { %>
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <i class="bi bi-person text-success me-2"></i>
+                                                        <small>Registered: <%= event.student_name %></small>
+                                                    </div>
+                                                    <% if (event.payment_status) { %>
+                                                        <div class="d-flex align-items-center">
+                                                            <i class="bi bi-credit-card text-<%= event.payment_status === 'paid' ? 'success' : 'warning' %> me-2"></i>
+                                                            <small class="text-<%= event.payment_status === 'paid' ? 'success' : 'warning' %>">
+                                                                Payment: <%= event.payment_status.charAt(0).toUpperCase() + event.payment_status.slice(1) %>
+                                                            </small>
+                                                        </div>
+                                                    <% } %>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer">
+                                            <div class="d-flex gap-2">
+                                                <a href="/events/<%= event.id %>" class="btn btn-outline-primary btn-sm flex-fill">
+                                                    <i class="bi bi-eye me-1"></i>View Details
+                                                </a>
+                                                <% if (!event.is_registered) { %>
+                                                    <button class="btn btn-success btn-sm" onclick="registerForEvent(<%= event.id %>, '<%= event.title %>')">
+                                                        <i class="bi bi-plus-circle me-1"></i>Register
+                                                    </button>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-5">
+                            <i class="bi bi-calendar-x fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">No Events Found</h4>
+                            <p class="text-muted">Try adjusting your search criteria or filters.</p>
+                        </div>
+                    <% } %>
+                </div>
+
+                <!-- Registered Events View -->
+                <div id="registeredEvents" class="view-section" style="display: none;">
+                    <% if (typeof events !== 'undefined' && events.registered && events.registered.length > 0) { %>
+                        <div class="row g-4">
+                            <% events.registered.forEach(event => { %>
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="card h-100 shadow-sm border-success">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <span class="badge bg-success">Registered</span>
+                                            <span class="badge bg-secondary"><%= event.event_type %></span>
+                                        </div>
+                                        <div class="card-body">
+                                            <h5 class="card-title"><%= event.title %></h5>
+                                            <p class="card-text text-muted"><%= event.description.substring(0, 100) %>...</p>
+                                            
+                                            <div class="mb-3">
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <i class="bi bi-calendar text-success me-2"></i>
+                                                    <small><%= event.start_date %></small>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <i class="bi bi-geo-alt text-success me-2"></i>
+                                                    <small><%= event.location %></small>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <i class="bi bi-person text-success me-2"></i>
+                                                    <small>Student: <%= event.student_name %></small>
+                                                </div>
+                                                <% if (event.payment_status) { %>
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="bi bi-credit-card text-<%= event.payment_status === 'paid' ? 'success' : 'warning' %> me-2"></i>
+                                                        <small class="text-<%= event.payment_status === 'paid' ? 'success' : 'warning' %>">
+                                                            Payment: <%= event.payment_status.charAt(0).toUpperCase() + event.payment_status.slice(1) %>
+                                                        </small>
+                                                    </div>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer">
+                                            <a href="/events/<%= event.id %>" class="btn btn-outline-success btn-sm w-100">
+                                                <i class="bi bi-eye me-1"></i>View Details
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-5">
+                            <i class="bi bi-calendar-check fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">No Registered Events</h4>
+                            <p class="text-muted">You haven't registered for any events yet.</p>
+                        </div>
+                    <% } %>
+                </div>
+
+                <!-- Available Events View -->
+                <div id="availableEvents" class="view-section" style="display: none;">
+                    <% if (typeof events !== 'undefined' && events.available && events.available.length > 0) { %>
+                        <div class="row g-4">
+                            <% events.available.forEach(event => { %>
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="card h-100 shadow-sm border-primary">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <span class="badge bg-primary">Available</span>
+                                            <span class="badge bg-secondary"><%= event.event_type %></span>
+                                        </div>
+                                        <div class="card-body">
+                                            <h5 class="card-title"><%= event.title %></h5>
+                                            <p class="card-text text-muted"><%= event.description.substring(0, 100) %>...</p>
+                                            
+                                            <div class="mb-3">
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <i class="bi bi-calendar text-primary me-2"></i>
+                                                    <small><%= event.start_date %></small>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <i class="bi bi-geo-alt text-primary me-2"></i>
+                                                    <small><%= event.location %></small>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <i class="bi bi-cash text-primary me-2"></i>
+                                                    <small>Fee: $<%= event.fee %></small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer">
+                                            <div class="d-flex gap-2">
+                                                <a href="/events/<%= event.id %>" class="btn btn-outline-primary btn-sm flex-fill">
+                                                    <i class="bi bi-eye me-1"></i>View Details
+                                                </a>
+                                                <button class="btn btn-success btn-sm" onclick="registerForEvent(<%= event.id %>, '<%= event.title %>')">
+                                                    <i class="bi bi-plus-circle me-1"></i>Register
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-5">
+                            <i class="bi bi-calendar-plus fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">No Available Events</h4>
+                            <p class="text-muted">All events are already registered or no events match your criteria.</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Registration Modal -->
+    <div class="modal fade" id="registrationModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Register for Event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="modalEventTitle" class="form-label">Event</label>
+                        <input type="text" class="form-control" id="modalEventTitle" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modalStudentSelect" class="form-label">Select Student</label>
+                        <select class="form-select" id="modalStudentSelect" required>
+                            <option value="">Choose a student...</option>
+                        </select>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Note:</strong> Payment will be collected at the event.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitRegistration()">Register Student</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5><i class="bi bi-calendar-event me-2"></i>School Events</h5>
+                    <p class="mb-0">Connecting parents with their children's school activities.</p>
+                    <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+                        <small class="text-muted">
+                            <i class="bi bi-person-check me-1"></i>
+                            Welcome back, <%= typeof user !== 'undefined' && user ? user.firstName : 'User' %>!
+                        </small>
+                    <% } %>
+                </div>
+                <div class="col-md-4">
+                    <h6>Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-light text-decoration-none">
+                            <i class="bi bi-house me-1"></i>Home
+                        </a></li>
+                        <li><a href="/events" class="text-light text-decoration-none">
+                            <i class="bi bi-calendar-event me-1"></i>Events
+                        </a></li>
+                        <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+                            <li><a href="/dashboard" class="text-light text-decoration-none">
+                                <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                            </a></li>
+                        <% } else { %>
+                            <li><a href="/auth/login" class="text-light text-decoration-none">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Login
+                            </a></li>
+                            <li><a href="/auth/register" class="text-light text-decoration-none">
+                                <i class="bi bi-person-plus me-1"></i>Register
+                            </a></li>
+                        <% } %>
+                    </ul>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <h6>Contact & Support</h6>
+                    <p class="mb-1">
+                        <i class="bi bi-envelope me-1"></i>
+                        <a href="mailto:support@schoolevents.com" class="text-light text-decoration-none">
+                            support@schoolevents.com
+                        </a>
+                    </p>
+                    <p class="mb-1">
+                        <i class="bi bi-telephone me-1"></i>
+                        <a href="tel:+1234567890" class="text-light text-decoration-none">
+                            +1 (234) 567-890
+                        </a>
+                    </p>
+                    <p class="mb-0">&copy; 2024 School Events. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS Animation JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Custom JS -->
+    <script src="/js/main.js"></script>
+    
+    <script>
+        // Initialize AOS animations
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+
+        // Toggle advanced filters
+        function toggleAdvancedFilters() {
+            const advancedFilters = document.getElementById('advancedFilters');
+            const isVisible = advancedFilters.style.display !== 'none';
+            advancedFilters.style.display = isVisible ? 'none' : 'block';
+        }
+
+        // Reset all filters
+        function resetFilters() {
+            document.getElementById('searchForm').reset();
+            document.getElementById('advancedFilters').style.display = 'none';
+            document.getElementById('searchForm').submit();
+        }
+
+        // View mode switching
+        document.querySelectorAll('input[name="viewMode"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const viewSections = document.querySelectorAll('.view-section');
+                viewSections.forEach(section => section.style.display = 'none');
+                
+                const selectedView = this.value;
+                document.getElementById(selectedView + 'Events').style.display = 'block';
+            });
+        });
+
+        // Register for event
+        let currentEventId = null;
+
+        function registerForEvent(eventId, eventTitle) {
+            currentEventId = eventId;
+            document.getElementById('modalEventTitle').value = eventTitle;
+            document.getElementById('modalStudentSelect').value = '';
+            
+            // Load students for this specific event
+            fetch(`/events/${eventId}/registration-students`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const select = document.getElementById('modalStudentSelect');
+                        select.innerHTML = '<option value="">Choose a student...</option>';
+                        
+                        data.students.forEach(student => {
+                            const option = document.createElement('option');
+                            option.value = student.id;
+                            
+                            if (student.is_registered) {
+                                option.textContent = `${student.full_name} (Grade ${student.grade}) - Already Registered`;
+                                option.disabled = true;
+                                option.style.color = '#6c757d';
+                            } else {
+                                option.textContent = `${student.full_name} (Grade ${student.grade})`;
+                            }
+                            
+                            select.appendChild(option);
+                        });
+
+                        // Show/hide registration button based on available students
+                        const availableStudents = data.students.filter(student => !student.is_registered);
+                        const registerBtn = document.querySelector('#registrationModal .btn-primary');
+                        
+                        if (availableStudents.length === 0) {
+                            if (registerBtn) {
+                                registerBtn.disabled = true;
+                                registerBtn.textContent = 'All Students Registered';
+                            }
+                        } else {
+                            if (registerBtn) {
+                                registerBtn.disabled = false;
+                                registerBtn.textContent = 'Register Student';
+                            }
+                        }
+                    } else {
+                        console.error('Failed to load students:', data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading students:', error);
+                });
+            
+            const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
+            modal.show();
+        }
+
+        // Submit registration
+        function submitRegistration() {
+            const studentId = document.getElementById('modalStudentSelect').value;
+            if (!studentId) {
+                alert('Please select a student');
+                return;
+            }
+            
+            if (!currentEventId) {
+                alert('Error: Could not determine event ID');
+                return;
+            }
+            
+            // Submit registration
+            fetch(`/events/${currentEventId}/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    studentId: studentId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Registration successful!');
+                    location.reload();
+                } else {
+                    alert(data.error || 'Registration failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred during registration');
+            });
+            
+            const modal = bootstrap.Modal.getInstance(document.getElementById('registrationModal'));
+            modal.hide();
+        }
+
+        // Auto-submit form on filter change
+        document.querySelectorAll('#searchForm select, #searchForm input[type="date"]').forEach(element => {
+            element.addEventListener('change', function() {
+                document.getElementById('searchForm').submit();
+            });
+        });
+
+        // Debounced search input
+        let searchTimeout;
+        document.getElementById('searchTerm').addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                document.getElementById('searchForm').submit();
+            }, 500);
+        });
+    </script>
+</body>
+</html> 

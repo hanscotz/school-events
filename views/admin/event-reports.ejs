@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Reports - School Events</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <%- include('../partials/header') %>
+
+    <div class="container-fluid">
+        <div class="row">
+            <%- include('../partials/sidebar') %>
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="bi bi-graph-up text-purple"></i>
+                        Event Reports & Analytics
+                    </h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="exportReport()">
+                                <i class="bi bi-download"></i> Export
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="printReport()">
+                                <i class="bi bi-printer"></i> Print
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <label for="eventFilter" class="form-label">Event Type</label>
+                        <select class="form-select" id="eventFilter">
+                            <option value="">All Events</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="dateFrom" class="form-label">From Date</label>
+                        <input type="date" class="form-control" id="dateFrom">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="dateTo" class="form-label">To Date</label>
+                        <input type="date" class="form-control" id="dateTo">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">&nbsp;</label>
+                        <button class="btn btn-purple w-100" onclick="loadEventReports()">
+                            <i class="bi bi-search"></i> Apply Filters
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-primary shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Total Events</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalEvents">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-calendar-event fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-success shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                            Total Registrations</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalRegistrations">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-people fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-info shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                            Average Attendance</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="avgAttendance">0%</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-percent fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-warning shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                            Popular Event Type</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="popularEventType">-</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-star fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="row mb-4">
+                    <div class="col-xl-8 col-lg-7">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Event Registration Trends</h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="registrationTrendsChart" width="400" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-4 col-lg-5">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Registrations by Grade</h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="gradeDistributionChart" width="400" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Reports Table -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Detailed Event Reports</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="eventReportsTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Event</th>
+                                        <th>Type</th>
+                                        <th>Date</th>
+                                        <th>Total Registrations</th>
+                                        <th>Max Capacity</th>
+                                        <th>Attendance Rate</th>
+                                        <th>Popular Grade</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="eventReportsTableBody">
+                                    <!-- Data will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <%- include('../partials/footer') %>
+
+    <script>
+        let registrationTrendsChart, gradeDistributionChart;
+
+        // Load event reports data
+        async function loadEventReports() {
+            try {
+                const filters = {
+                    eventType: document.getElementById('eventFilter').value,
+                    dateFrom: document.getElementById('dateFrom').value,
+                    dateTo: document.getElementById('dateTo').value
+                };
+
+                const response = await fetch('/admin/event-reports/data?' + new URLSearchParams(filters));
+                const data = await response.json();
+
+                if (data.success) {
+                    updateSummaryCards(data.summary);
+                    updateCharts(data.charts);
+                    updateReportsTable(data.events);
+                }
+            } catch (error) {
+                console.error('Error loading event reports:', error);
+            }
+        }
+
+        // Update summary cards
+        function updateSummaryCards(summary) {
+            document.getElementById('totalEvents').textContent = summary.totalEvents;
+            document.getElementById('totalRegistrations').textContent = summary.totalRegistrations;
+            document.getElementById('avgAttendance').textContent = summary.avgAttendance + '%';
+            document.getElementById('popularEventType').textContent = summary.popularEventType;
+        }
+
+        // Update charts
+        function updateCharts(charts) {
+            // Registration Trends Chart
+            const trendsCtx = document.getElementById('registrationTrendsChart').getContext('2d');
+            if (registrationTrendsChart) {
+                registrationTrendsChart.destroy();
+            }
+            registrationTrendsChart = new Chart(trendsCtx, {
+                type: 'line',
+                data: {
+                    labels: charts.trends.labels,
+                    datasets: [{
+                        label: 'Registrations',
+                        data: charts.trends.data,
+                        borderColor: '#6f42c1',
+                        backgroundColor: 'rgba(111, 66, 193, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Grade Distribution Chart
+            const gradeCtx = document.getElementById('gradeDistributionChart').getContext('2d');
+            if (gradeDistributionChart) {
+                gradeDistributionChart.destroy();
+            }
+            gradeDistributionChart = new Chart(gradeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: charts.gradeDistribution.labels,
+                    datasets: [{
+                        data: charts.gradeDistribution.data,
+                        backgroundColor: [
+                            '#6f42c1',
+                            '#8e44ad',
+                            '#9b59b6',
+                            '#a55eea'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update reports table
+        function updateReportsTable(events) {
+            const tbody = document.getElementById('eventReportsTableBody');
+            tbody.innerHTML = '';
+
+            events.forEach(event => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${event.title}</td>
+                    <td><span class="badge bg-purple">${event.event_type}</span></td>
+                    <td>${event.start_date}</td>
+                    <td>${event.total_registrations}</td>
+                    <td>${event.max_participants}</td>
+                    <td>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-purple" style="width: ${event.attendance_rate}%">
+                                ${event.attendance_rate}%
+                            </div>
+                        </div>
+                    </td>
+                    <td>${event.popular_grade}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="viewEventDetails(${event.id})">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Export report
+        function exportReport() {
+            const filters = {
+                eventType: document.getElementById('eventFilter').value,
+                dateFrom: document.getElementById('dateFrom').value,
+                dateTo: document.getElementById('dateTo').value
+            };
+
+            const url = '/admin/event-reports/export?' + new URLSearchParams(filters);
+            window.open(url, '_blank');
+        }
+
+        // Print report
+        function printReport() {
+            window.print();
+        }
+
+        // View event details
+        function viewEventDetails(eventId) {
+            window.location.href = `/admin/events/${eventId}`;
+        }
+
+        // Load event types for filter
+        async function loadEventTypes() {
+            try {
+                const response = await fetch('/admin/events/types');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const select = document.getElementById('eventFilter');
+                    data.types.forEach(type => {
+                        const option = document.createElement('option');
+                        option.value = type;
+                        option.textContent = type;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading event types:', error);
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadEventTypes();
+            loadEventReports();
+        });
+    </script>
+</body>
+</html> 
