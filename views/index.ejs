@@ -14,10 +14,231 @@
     
     <!-- AOS Animation Library -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <style>
+        /* Hero Section Styles */
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 50%, var(--accent-blue) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .hero-btn {
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .hero-btn-primary {
+            background: white;
+            color: var(--primary-blue);
+            border: 2px solid white;
+        }
+        
+        .hero-btn-primary:hover {
+            background: transparent;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .hero-btn-outline {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+        
+        .hero-btn-outline:hover {
+            background: white;
+            color: var(--primary-blue);
+            transform: translateY(-2px);
+        }
+        
+        .hero-image {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .floating-icon {
+            font-size: 20rem;
+            color: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        /* Features Section */
+        .features-section {
+            padding: 5rem 0;
+            background: #f8f9fa;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            height: 100%;
+            border: none;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: white;
+        }
+        
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-gray);
+            margin-bottom: 1rem;
+        }
+        
+        .feature-text {
+            color: var(--gray-color);
+            line-height: 1.6;
+        }
+        
+        /* Stats Section */
+        .stats-section {
+            padding: 4rem 0;
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: white;
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            padding: 5rem 0;
+            background: white;
+        }
+        
+        .cta-card {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            color: white;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .cta-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .cta-text {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .floating-icon {
+                font-size: 15rem;
+            }
+            
+            .hero-buttons {
+                justify-content: center;
+            }
+            
+            .cta-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-purple fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
         <div class="container">
             <a class="navbar-brand fw-bold" href="/">
                 <i class="bi bi-calendar-event me-2"></i>
@@ -51,30 +272,30 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main>
         <!-- Hero Section -->
         <section class="hero-section">
             <div class="container">
                 <div class="row align-items-center">
                     <div class="col-lg-6 hero-content" data-aos="fade-right">
-                        <h1 class="hero-title">Stay Connected with Your Child's School Events</h1>
+                        <h1 class="hero-title">Connect with Your Child's School Journey</h1>
                         <p class="hero-subtitle">
-                            Get real-time updates, register for events, and never miss important school activities. 
-                            Our platform keeps parents informed and engaged with their children's educational journey.
+                            Stay informed about every school event, activity, and milestone. 
+                            Join thousands of parents who trust our platform to keep them connected.
                         </p>
                         <div class="hero-buttons">
-                            <a href="/auth/register" class="btn btn-light btn-lg me-3">
-                                <i class="bi bi-person-plus me-2"></i>Get Started
+                            <a href="/auth/register" class="hero-btn hero-btn-primary">
+                                <i class="bi bi-person-plus"></i>
+                                Get Started
                             </a>
-                            <a href="/auth/login" class="btn btn-outline-light btn-lg">
-                                <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                            <a href="/auth/login" class="hero-btn hero-btn-outline">
+                                <i class="bi bi-box-arrow-in-right"></i>
+                                Sign In
                             </a>
                         </div>
                     </div>
-                    <div class="col-lg-6" data-aos="fade-left">
-                        <div class="hero-image text-center">
-                            <i class="bi bi-calendar-check" style="font-size: 15rem; opacity: 0.8;"></i>
-                        </div>
+                    <div class="col-lg-6 hero-image text-center" data-aos="fade-left">
+                        <i class="bi bi-calendar-check floating-icon"></i>
                     </div>
                 </div>
             </div>
@@ -85,8 +306,8 @@
             <div class="container">
                 <div class="row text-center mb-5">
                     <div class="col-12" data-aos="fade-up">
-                        <h2 class="display-4 fw-bold text-purple mb-3">Why Choose School Events?</h2>
-                        <p class="lead text-muted">Everything you need to stay connected with your child's school activities</p>
+                        <h2 class="display-4 fw-bold text-primary mb-3">Why Choose School Events?</h2>
+                        <p class="lead text-muted">Everything you need to stay connected with your child's education</p>
                     </div>
                 </div>
                 
@@ -96,10 +317,9 @@
                             <div class="feature-icon">
                                 <i class="bi bi-bell"></i>
                             </div>
-                            <h4 class="fw-bold mb-3">Real-time Notifications</h4>
-                            <p class="text-muted">
-                                Get instant email notifications about new events, registration confirmations, 
-                                and important updates about your child's activities.
+                            <h4 class="feature-title">Real-time Updates</h4>
+                            <p class="feature-text">
+                                Get instant notifications about school events, schedule changes, and important announcements.
                             </p>
                         </div>
                     </div>
@@ -107,64 +327,23 @@
                     <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
                         <div class="feature-card">
                             <div class="feature-icon">
-                                <i class="bi bi-calendar-plus"></i>
+                                <i class="bi bi-calendar-check"></i>
                             </div>
-                            <h4 class="fw-bold mb-3">Easy Event Registration</h4>
-                            <p class="text-muted">
-                                Register your child for events with just a few clicks. Track registrations, 
-                                manage payments, and view event details all in one place.
+                            <h4 class="feature-title">Easy Registration</h4>
+                            <p class="feature-text">
+                                Register your child for events with just a few clicks. No more paper forms or long queues.
                             </p>
                         </div>
                     </div>
                     
                     <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
-                        <div class="feature-card">
-                            <div class="feature-icon">
-                                <i class="bi bi-graph-up"></i>
-                            </div>
-                            <h4 class="fw-bold mb-3">Progress Tracking</h4>
-                            <p class="text-muted">
-                                Monitor your child's participation in school events, view attendance records, 
-                                and track their involvement in various activities.
-                            </p>
-                        </div>
-                    </div>
-                    
-                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="400">
                         <div class="feature-card">
                             <div class="feature-icon">
                                 <i class="bi bi-shield-check"></i>
                             </div>
-                            <h4 class="fw-bold mb-3">Secure & Private</h4>
-                            <p class="text-muted">
-                                Your family's information is protected with industry-standard security. 
-                                Only authorized parents can access their children's data.
-                            </p>
-                        </div>
-                    </div>
-                    
-                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="500">
-                        <div class="feature-card">
-                            <div class="feature-icon">
-                                <i class="bi bi-people"></i>
-                            </div>
-                            <h4 class="fw-bold mb-3">Community Engagement</h4>
-                            <p class="text-muted">
-                                Connect with other parents, share experiences, and build a stronger 
-                                school community through active participation in events.
-                            </p>
-                        </div>
-                    </div>
-                    
-                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="600">
-                        <div class="feature-card">
-                            <div class="feature-icon">
-                                <i class="bi bi-phone"></i>
-                            </div>
-                            <h4 class="fw-bold mb-3">Mobile Friendly</h4>
-                            <p class="text-muted">
-                                Access the platform from any device. Stay updated on the go with 
-                                our responsive design that works on phones, tablets, and computers.
+                            <h4 class="feature-title">Secure & Private</h4>
+                            <p class="feature-text">
+                                Your family's information is protected with bank-level security and privacy controls.
                             </p>
                         </div>
                     </div>
@@ -172,160 +351,55 @@
             </div>
         </section>
 
-        <!-- How It Works Section -->
-        <section class="how-it-works-section">
+        <!-- Stats Section -->
+        <section class="stats-section">
             <div class="container">
-                <div class="row text-center mb-5">
-                    <div class="col-12" data-aos="fade-up">
-                        <h2 class="display-4 fw-bold text-purple mb-3">How It Works</h2>
-                        <p class="lead text-muted">Simple steps to get started with School Events</p>
-                    </div>
-                </div>
-                
-                <div class="row g-4">
-                    <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
-                        <div class="step-card text-center">
-                            <div class="step-number">1</div>
-                            <h5 class="fw-bold mb-3">Create Account</h5>
-                            <p class="text-muted">Sign up with your email and create your parent profile</p>
+                <div class="row">
+                    <div class="col-md-3 col-6" data-aos="fade-up" data-aos-delay="100">
+                        <div class="stat-card">
+                            <div class="stat-number">500+</div>
+                            <div class="stat-label">Happy Parents</div>
                         </div>
                     </div>
-                    
-                    <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
-                        <div class="step-card text-center">
-                            <div class="step-number">2</div>
-                            <h5 class="fw-bold mb-3">Add Students</h5>
-                            <p class="text-muted">Add your children's information to your account</p>
+                    <div class="col-md-3 col-6" data-aos="fade-up" data-aos-delay="200">
+                        <div class="stat-card">
+                            <div class="stat-number">50+</div>
+                            <div class="stat-label">School Events</div>
                         </div>
                     </div>
-                    
-                    <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
-                        <div class="step-card text-center">
-                            <div class="step-number">3</div>
-                            <h5 class="fw-bold mb-3">Browse Events</h5>
-                            <p class="text-muted">Explore upcoming school events and activities</p>
+                    <div class="col-md-3 col-6" data-aos="fade-up" data-aos-delay="300">
+                        <div class="stat-card">
+                            <div class="stat-number">1000+</div>
+                            <div class="stat-label">Students</div>
                         </div>
                     </div>
-                    
-                    <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
-                        <div class="step-card text-center">
-                            <div class="step-number">4</div>
-                            <h5 class="fw-bold mb-3">Register & Participate</h5>
-                            <p class="text-muted">Register your child for events and stay updated</p>
+                    <div class="col-md-3 col-6" data-aos="fade-up" data-aos-delay="400">
+                        <div class="stat-card">
+                            <div class="stat-number">24/7</div>
+                            <div class="stat-label">Support</div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Recent Events Section -->
-        <section class="recent-events-section">
+        <!-- CTA Section -->
+        <section class="cta-section">
             <div class="container">
-                <div class="row text-center mb-5">
-                    <div class="col-12" data-aos="fade-up">
-                        <h2 class="display-4 fw-bold text-purple mb-3">Recent School Events</h2>
-                        <p class="lead text-muted">Check out some of our recent and upcoming events</p>
-                    </div>
-                </div>
-                
-                <div class="row g-4">
-                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
-                        <div class="event-card">
-                            <div class="event-badge">Academic</div>
-                            <h5 class="fw-bold mb-2">Science Fair 2024</h5>
-                            <p class="text-muted mb-3">Students showcase their scientific projects and innovations</p>
-                            <div class="event-meta">
-                                <span class="event-date"><i class="bi bi-calendar me-1"></i>March 15, 2024</span>
-                                <span class="event-location"><i class="bi bi-geo-alt me-1"></i>School Gymnasium</span>
-                            </div>
-                            <div class="event-footer">
-                                <span class="event-fee">Free</span>
-                                <a href="/events" class="btn btn-primary btn-sm">Learn More</a>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
-                        <div class="event-card">
-                            <div class="event-badge">Sports</div>
-                            <h5 class="fw-bold mb-2">Annual Sports Day</h5>
-                            <p class="text-muted mb-3">A day filled with athletic competitions and team sports</p>
-                            <div class="event-meta">
-                                <span class="event-date"><i class="bi bi-calendar me-1"></i>April 20, 2024</span>
-                                <span class="event-location"><i class="bi bi-geo-alt me-1"></i>School Grounds</span>
-                            </div>
-                            <div class="event-footer">
-                                <span class="event-fee">$10</span>
-                                <a href="/events" class="btn btn-primary btn-sm">Learn More</a>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
-                        <div class="event-card">
-                            <div class="event-badge">Cultural</div>
-                            <h5 class="fw-bold mb-2">Cultural Festival</h5>
-                            <p class="text-muted mb-3">Celebrate diversity through music, dance, and art</p>
-                            <div class="event-meta">
-                                <span class="event-date"><i class="bi bi-calendar me-1"></i>May 10, 2024</span>
-                                <span class="event-location"><i class="bi bi-geo-alt me-1"></i>Auditorium</span>
-                            </div>
-                            <div class="event-footer">
-                                <span class="event-fee">$15</span>
-                                <a href="/events" class="btn btn-primary btn-sm">Learn More</a>
-                            </div>
+                <div class="row justify-content-center">
+                    <div class="col-lg-8" data-aos="zoom-in">
+                        <div class="cta-card">
+                            <h2 class="cta-title">Ready to Get Started?</h2>
+                            <p class="cta-text">
+                                Join our community of parents and never miss an important school event again.
+                            </p>
+                            <a href="/auth/register" class="btn btn-light btn-lg px-4">
+                                <i class="bi bi-person-plus me-2"></i>
+                                Create Your Account
+                            </a>
                         </div>
                     </div>
                 </div>
-                
-                <div class="row mt-5">
-                    <div class="col-12 text-center">
-                        <a href="/events" class="btn btn-primary btn-lg">
-                            <i class="bi bi-calendar-event me-2"></i>View All Events
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- What Parents Say Section -->
-        <section class="testimonials-section bg-light py-5">
-            <div class="container">
-                <div class="row text-center mb-4">
-                    <div class="col-12" data-aos="fade-up">
-                        <h2 class="fw-bold text-purple mb-3"><i class="bi bi-chat-dots me-2"></i>What Parents Say</h2>
-                        <p class="lead text-muted">Hear from parents who use our platform</p>
-                    </div>
-                </div>
-                <% if (feedback && feedback.length > 0) { %>
-                    <div class="row justify-content-center">
-                        <% feedback.forEach(fb => { %>
-                            <div class="col-md-6 col-lg-4 mb-4" data-aos="fade-up">
-                                <div class="card h-100 shadow-sm">
-                                    <div class="card-body">
-                                        <div class="mb-2">
-                                            <% if (fb.rating) { %>
-                                                <% for (let i = 1; i <= 5; i++) { %>
-                                                    <i class="bi bi-star-fill <%= i <= fb.rating ? 'text-warning' : 'text-secondary' %>"></i>
-                                                <% } %>
-                                            <% } %>
-                                        </div>
-                                        <blockquote class="blockquote mb-2">
-                                            <p class="mb-0">“<%= fb.message %>”</p>
-                                        </blockquote>
-                                        <footer class="blockquote-footer">
-                                            <strong><%= fb.first_name %> <%= fb.last_name.charAt(0) %>.</strong>
-                                            <br>
-                                            <small class="text-muted"><i class="bi bi-clock me-1"></i><%= new Date(fb.created_at).toLocaleDateString() %></small>
-                                        </footer>
-                                    </div>
-                                </div>
-                            </div>
-                        <% }) %>
-                    </div>
-                <% } else { %>
-                    <div class="alert alert-info text-center">No parent feedback yet. Be the first to share your experience!</div>
-                <% } %>
             </div>
         </section>
     </main>
@@ -377,11 +451,11 @@
                     </p>
                     <p class="mb-1">
                         <i class="bi bi-telephone me-1"></i>
-                        <a href="tel:+1234567890" class="text-light text-decoration-none">
-                            +1 (234) 567-890
+                        <a href="tel:+255626776318" class="text-light text-decoration-none">
+                            +255 626 776 318
                         </a>
                     </p>
-                    <p class="mb-0">&copy; 2024 School Events. All rights reserved.</p>
+                    <p class="mb-0">&copy; 2025 School Events. All rights reserved.</p>
                 </div>
             </div>
         </div>

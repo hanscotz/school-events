@@ -16,7 +16,7 @@
                         </div>
                         <div class="col-md-6">
                             <p><i class="bi bi-tag me-2"></i><strong>Type:</strong> <span class="badge bg-primary"><%= event.event_type %></span></p>
-                            <p><i class="bi bi-currency-dollar me-2"></i><strong>Fee:</strong> $<%= event.fee %></p>
+                            <p><i class="bi bi-currency-dollar me-2"></i><strong>Fee:</strong> TSh <%= event.fee %></p>
                         </div>
                     </div>
                     
@@ -73,7 +73,7 @@
                     </div>
                     <div class="mb-3">
                         <strong>Participation Fee:</strong><br>
-                        <span class="text-success fw-bold">$<%= event.fee %></span>
+                                                        <span class="text-success fw-bold">TSh <%= event.fee %></span>
                     </div>
                     <div class="mb-3">
                         <strong>Registration Deadline:</strong><br>
@@ -107,7 +107,7 @@
                                     <% registrations.forEach(registration => { %>
                                         <tr>
                                             <td><%= registration.student_first_name %> <%= registration.student_last_name %></td>
-                                            <td><%= registration.parent_first_name %> <%= registration.parent_last_name %></td>
+                                            <td class="parent-name"><%= registration.parent_first_name %> <%= registration.parent_last_name %></td>
                                             <td><%= new Date(registration.registration_date).toLocaleDateString() %></td>
                                             <td>
                                                 <span class="badge bg-<%= registration.payment_status === 'paid' ? 'success' : 'warning' %>">
@@ -146,7 +146,7 @@
                         </div>
                         <div class="alert alert-info">
                             <i class="bi bi-info-circle me-2"></i>
-                            <strong>Event Fee:</strong> $<%= typeof event !== 'undefined' ? event.fee : '0' %><br>
+                            <strong>Event Fee:</strong> TSh <%= typeof event !== 'undefined' ? event.fee : '0' %><br>
                             <small>Payment will be collected at the event.</small>
                         </div>
                     </div>
@@ -207,11 +207,11 @@
                     </p>
                     <p class="mb-1">
                         <i class="bi bi-telephone me-1"></i>
-                        <a href="tel:+1234567890" class="text-light text-decoration-none">
-                            +1 (234) 567-890
+                        <a href="tel:+255626776318" class="text-light text-decoration-none">
+                            +255 626 776 318
                         </a>
                     </p>
-                    <p class="mb-0">&copy; 2024 School Events. All rights reserved.</p>
+                    <p class="mb-0">&copy; 2025 School Events. All rights reserved.</p>
                 </div>
             </div>
         </div>

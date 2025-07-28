@@ -16,6 +16,7 @@ const authRoutes = require('./routes/auth');
 const eventRoutes = require('./routes/events');
 const parentRoutes = require('./routes/parents');
 const adminRoutes = require('./routes/admin');
+const indexRoutes = require('./routes/index');
 
 // Middleware
 app.use(cors());
@@ -47,17 +48,8 @@ app.use('/auth', authRoutes.router || authRoutes);
 app.use('/events', eventRoutes.router || eventRoutes);
 app.use('/parents', parentRoutes.router || parentRoutes);
 app.use('/admin', adminRoutes.router || adminRoutes);
+app.use('/', indexRoutes);
 
-
-
-// Home route
-app.get('/', (req, res) => {
-    res.render('index', { 
-        title: 'School Events - Welcome',
-        user: req.session.user,
-        feedback: []
-    });
-});
 
 // Dashboard route
 app.get('/dashboard', (req, res) => {

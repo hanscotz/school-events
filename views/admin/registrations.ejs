@@ -220,7 +220,7 @@
                         <strong>${reg.student_name}</strong><br>
                         <small class="text-muted">Grade ${reg.student_grade}</small>
                     </td>
-                    <td>
+                    <td class="parent-name">
                         ${reg.parent_name}<br>
                         <small class="text-muted">${reg.parent_email}</small>
                     </td>
@@ -234,7 +234,7 @@
                         </span>
                     </td>
                     <td>
-                        $${reg.payment_amount || reg.event_fee || '0.00'}
+                        TSh ${reg.payment_amount || reg.event_fee || '0.00'}
                     </td>
                     <td>
                         <button class="btn btn-sm btn-outline-primary" onclick="openPaymentModal(${reg.id}, '${reg.event_title}', '${reg.student_name}', '${reg.parent_name}', '${reg.payment_status}', ${reg.payment_amount || reg.event_fee || 0})">
