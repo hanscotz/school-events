@@ -83,7 +83,7 @@ router.post('/login', async (req, res) => {
         const user = userResult.rows[0];
 
         // Check password
-        const isValidPassword = await bcrypt.compare(password, user.password);
+        const isValidPassword = await bcrypt.compare(password, user.password_hash);
         if (!isValidPassword) {
             return res.render('auth/login', { 
                 title: 'Login - School Events',
@@ -168,7 +168,7 @@ router.post('/register', async (req, res) => {
 
         // Create user
         const newUser = await db.query(
-            'INSERT INTO users (first_name, last_name, email, password, phone, role) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+            'INSERT INTO users (first_name, last_name, email, password_hash, phone, role) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
             [firstName, lastName, email, hashedPassword, phone || null, 'parent']
         );
 
@@ -301,22 +301,22 @@ router.post('/change-password', requireAuth, async (req, res) => {
 
         // Get current user
         const user = await db.query(
-            'SELECT password FROM users WHERE id = $1',
+            'SELECT password_hash FROM users WHERE id = $1',
             [req.session.user.id]
         );
 
         // Verify current password
-        const isValidPassword = await bcrypt.compare(currentPassword, user.rows[0].password);
+        const isValidPassword = await bcrypt.compare(currentPassword, user.rows[0].password_hash);
         if (!isValidPassword) {
             return res.redirect('/auth/profile?error=Current password is incorrect');
         }
 
         // Hash new password
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        const hashedPassword = await bcrypt.hash(newPassword, 12);
 
         // Update password
         await db.query(
-            'UPDATE users SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+            'UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
             [hashedPassword, req.session.user.id]
         );
 
