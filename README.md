@@ -1,96 +1,162 @@
 # 🎓 School Events Management System
 
-A comprehensive web application for managing school events where parents can view, register, and track their children's participation in various school activities. Built with Express.js, EJS, PostgreSQL, and Bootstrap.
+A comprehensive, modern web application for managing school events with role-based access for administrators, teachers, and parents. Built with Node.js, Express, PostgreSQL, and featuring beautiful responsive UI.
 
 ## ✨ Features
 
-### For Parents
-- **User Authentication**: Secure login and registration system
-- **Student Management**: Add and manage multiple children
-- **Event Browsing**: View all upcoming school events with details
-- **Event Registration**: Easy registration for events with payment tracking
-- **Email Notifications**: Real-time email notifications for:
-  - Event registration confirmations
-  - Event reminders
-  - New event announcements
-- **Dashboard**: Overview of upcoming events, registrations, and statistics
-- **Profile Management**: Update personal information and change passwords
+### 🔐 Role-Based Access Control
+- **Administrators**: Full system control, user management, event creation
+- **Teachers**: Student management, event registration, class oversight
+- **Parents**: Event viewing, payment processing, notifications
 
-### For Administrators
-- **Event Management**: Create, edit, and delete school events
-- **User Management**: Manage parent accounts and student profiles
-- **Registration Tracking**: Monitor event registrations and payments
-- **Financial Reports**: Generate revenue and participation reports
-- **Bulk Notifications**: Send announcements to all parents
-- **System Analytics**: View comprehensive system statistics
+### 🎯 Core Functionality
 
-### Technical Features
-- **Responsive Design**: Mobile-friendly interface with Bootstrap 5
-- **Modern UI**: Purple color scheme with smooth animations
-- **Real-time Updates**: Live notification system
-- **Email Integration**: Nodemailer for automated email notifications
-- **Database Management**: PostgreSQL with proper relationships
-- **Security**: Password hashing, session management, and input validation
+#### For Administrators
+- 📊 Comprehensive dashboard with system analytics
+- 👥 User management (create teachers, approve parents)
+- 🎪 Event creation and management
+- 📋 Parent registration approval workflow
+- 🏫 Class and student oversight
+- 📈 Detailed reporting and analytics
+- ⚙️ System settings and configuration
 
-## 🚀 Quick Start
+#### For Teachers
+- 👨‍🏫 Student management for assigned classes
+- ➕ Add and edit student records
+- 📝 Register students for events
+- 📊 Class participation tracking
+- 📋 Event registration management
+- 📑 Class summary and reports
+
+#### For Parents
+- 👶 View children's information and activities
+- 🔔 Receive notifications (email, SMS, in-app)
+- 💳 Secure payment processing with Stripe
+- 📱 Mobile-responsive dashboard
+- 📋 Payment history and receipts
+- 💬 Submit feedback to school
+- 🔍 Browse and search school events
+
+### 🔔 Advanced Notification System
+- **Email Notifications**: Beautiful HTML templates with multiple providers
+- **SMS Notifications**: Multi-provider SMS support with delivery tracking
+- **In-App Notifications**: Real-time notifications with read status
+- **Event-Driven**: Automatic notifications for registrations, payments, approvals
+
+### 💳 Integrated Payment System
+- **Stripe Integration**: Secure payment processing
+- **Payment Tracking**: Complete transaction history
+- **Automatic Receipts**: Email and SMS confirmations
+- **Payment Reminders**: Automated overdue payment notifications
+- **Refund Management**: Admin-controlled refund processing
+
+### 🎨 Modern UI/UX
+- **Responsive Design**: Works on all devices
+- **Beautiful Animations**: AOS animations and smooth transitions
+- **Dark/Light Themes**: Customizable appearance
+- **Intuitive Navigation**: Role-based navigation menus
+- **Interactive Components**: Real-time updates and feedback
+
+## 🛠️ Technology Stack
+
+### Backend
+- **Node.js** - Runtime environment
+- **Express.js** - Web framework
+- **PostgreSQL** - Primary database
+- **bcryptjs** - Password hashing
+- **express-session** - Session management
+- **multer** - File upload handling
+- **moment** - Date manipulation
+
+### Frontend
+- **EJS** - Template engine
+- **Bootstrap 5** - CSS framework
+- **AOS** - Animation library
+- **SweetAlert2** - Beautiful alerts
+- **Bootstrap Icons** - Icon library
+
+### Services
+- **Stripe** - Payment processing
+- **Nodemailer** - Email service
+- **SMS Service** - Multi-provider SMS
+- **UUID** - Unique identifiers
+
+### Security
+- **Helmet** - Security headers
+- **CSRF Protection** - Cross-site request forgery protection
+- **Rate Limiting** - API rate limiting
+- **Input Validation** - Express validator
+- **Session Security** - Secure session handling
+
+## 🚀 Installation & Setup
 
 ### Prerequisites
 - Node.js (v14 or higher)
 - PostgreSQL (v12 or higher)
 - npm or yarn
 
-### Installation
-
-1. **Clone the repository**
+### 1. Clone the Repository
    ```bash
-   git clone <repository-url>
+git clone https://github.com/your-username/school-events.git
    cd school-events
    ```
 
-2. **Install dependencies**
+### 2. Install Dependencies
    ```bash
    npm install
    ```
 
-3. **Set up environment variables**
-   ```bash
-   cp config.env.example config.env
-   ```
-   
-   Edit `config.env` with your configuration:
+### 3. Environment Configuration
+Create a `config.env` file in the root directory:
+
    ```env
    # Database Configuration
    DB_HOST=localhost
    DB_PORT=5432
    DB_NAME=school_events
-   DB_USER=postgres
-   DB_PASSWORD=your_password
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
 
-   # Email Configuration (Gmail)
+# Session Secret
+SESSION_SECRET=your_super_secret_session_key
+
+# Email Configuration (Gmail example)
    EMAIL_HOST=smtp.gmail.com
    EMAIL_PORT=587
    EMAIL_USER=your_email@gmail.com
    EMAIL_PASS=your_app_password
+EMAIL_ENABLED=true
 
-   # Server Configuration
+# SMS Configuration
+SMS_API_KEY=your_sms_api_key
+SMS_API_URL=https://api.sms-provider.com
+SMS_FROM_NUMBER=+1234567890
+SMS_ENABLED=true
+
+# Payment Configuration
+STRIPE_PUBLIC_KEY=pk_test_your_stripe_public_key
+STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
+PAYMENT_CURRENCY=usd
+
+# Application Configuration
    PORT=3000
-   SESSION_SECRET=your_session_secret_key
-
-   # Application Settings
-   APP_NAME=School Events
+NODE_ENV=development
    APP_URL=http://localhost:3000
    ```
 
-4. **Set up the database**
+### 4. Database Setup
    ```bash
-   # Create PostgreSQL database
+# Create the database
    createdb school_events
    
-   # Initialize database tables and sample data
-   npm run init-db
-   ```
+# Run the database schema
+psql -d school_events -f database/schema.sql
 
-5. **Start the application**
+# Or use the setup script
+node database/setup-new-db.js
+```
+
+### 5. Start the Application
    ```bash
    # Development mode
    npm run dev
@@ -99,226 +165,244 @@ A comprehensive web application for managing school events where parents can vie
    npm start
    ```
 
-6. **Access the application**
-   - Open your browser and go to `http://localhost:3000`
-   - Default admin credentials:
-     - Email: `admin@school.com`
-     - Password: `admin123`
+The application will be available at `http://localhost:3000`
 
-## 📧 Email Setup
+## 📊 Database Schema
 
-To enable email notifications, you need to configure Gmail:
+### Core Tables
+- **users** - User accounts (admin, teacher, parent)
+- **students** - Student records with class assignments
+- **classes** - Class management with teacher assignments
+- **events** - School events with detailed information
+- **event_registrations** - Student event registrations
+- **payments** - Payment transaction tracking
 
-1. **Enable 2-Factor Authentication** on your Gmail account
-2. **Generate an App Password**:
-   - Go to Google Account settings
-   - Security → 2-Step Verification → App passwords
-   - Generate a new app password for "Mail"
-3. **Update config.env** with your Gmail credentials
+### Workflow Tables
+- **parent_registration_requests** - Parent signup approval queue
+- **notifications** - In-app notification system
+- **email_logs** - Email delivery tracking
+- **sms_logs** - SMS delivery tracking
+- **audit_logs** - Security and action auditing
 
-## 🗄️ Database Schema
+### Helper Tables
+- **event_categories** - Event classification
+- **sessions** - User session management
+- **feedback** - Parent feedback system
 
-The application uses the following main tables:
+## 🔄 Workflow Overview
 
-- **users**: Parent and admin accounts
-- **students**: Student information linked to parents
-- **events**: School events with details
-- **event_registrations**: Event participation records
-- **notifications**: In-app notification system
-- **email_logs**: Email delivery tracking
-
-## 🎨 Customization
-
-### Colors
-The application uses a purple color scheme defined in `public/css/style.css`:
-```css
-:root {
-    --primary-purple: #6f42c1;
-    --secondary-purple: #8e44ad;
-    --light-purple: #e9d5ff;
-    --dark-purple: #4c1d95;
-}
+### 1. User Registration & Approval
+```
+Parent Request → Admin Review → Account Creation → Email/SMS Notification
 ```
 
-### Styling
-- Modify `public/css/style.css` for custom styling
-- Update Bootstrap classes in EJS templates
-- Customize animations in the CSS file
+### 2. Student Management
+```
+Admin Creates Teachers → Teachers Add Students → Class Assignment → Parent Linking
+```
 
-## 📱 Usage Guide
+### 3. Event Management
+```
+Admin Creates Event → Teachers Register Students → Parent Notification → Payment Processing
+```
 
-### For Parents
+### 4. Payment Flow
+```
+Registration → Notification → Payment Portal → Stripe Processing → Confirmation
+```
 
-1. **Registration**
-   - Click "Register" on the homepage
-   - Fill in your details and create an account
-   - Add your children's information
+## 🎯 User Roles & Permissions
 
-2. **Adding Students**
-   - Go to Parent Dashboard
-   - Click "Add Student"
-   - Enter student details (name, grade, section)
+### Administrator
+- ✅ Full system access
+- ✅ User management
+- ✅ Event creation/editing
+- ✅ Parent approval workflow
+- ✅ System reports
+- ✅ Class management
+- ✅ Payment oversight
 
-3. **Event Registration**
-   - Browse events on the Events page
-   - Click on an event to view details
-   - Select your child and click "Register"
-   - Receive email confirmation
+### Teacher
+- ✅ Student management (own classes)
+- ✅ Event registration for students
+- ✅ Class reports
+- ✅ Student information editing
+- ❌ User creation
+- ❌ System administration
 
-4. **Managing Registrations**
-   - View all registrations in Parent Dashboard
-   - Cancel registrations if needed
-   - Track payment status
+### Parent
+- ✅ View children's activities
+- ✅ Payment processing
+- ✅ Notification management
+- ✅ Event browsing
+- ✅ Feedback submission
+- ❌ Student registration
+- ❌ Administrative functions
 
-### For Administrators
+## 🔔 Notification Types
 
-1. **Creating Events**
-   - Go to Admin Dashboard
-   - Click "Create Event"
-   - Fill in event details (title, description, dates, location, fee)
-   - Save and notify all parents
+### Email Notifications
+- Event registration confirmations
+- Payment reminders and confirmations
+- Account approval notifications
+- Event reminders
+- System announcements
 
-2. **Managing Users**
-   - Access "Manage Users" from admin menu
-   - Add new parent accounts
-   - Edit user information
-   - Monitor user activity
+### SMS Notifications
+- Urgent payment reminders
+- Event registration alerts
+- Account status updates
+- Emergency notifications
 
-3. **Generating Reports**
-   - View event participation reports
-   - Generate financial reports
-   - Export data to CSV
+### In-App Notifications
+- Real-time activity updates
+- System messages
+- Payment status changes
+- Event updates
+
+## 💳 Payment Features
+
+### Supported Payment Methods
+- Credit/Debit Cards (via Stripe)
+- Digital Wallets (Apple Pay, Google Pay)
+- Bank Transfers (configurable)
+
+### Payment Security
+- PCI DSS compliant via Stripe
+- Encrypted transaction storage
+- Secure payment forms
+- Fraud detection
+
+### Payment Management
+- Automatic payment reminders
+- Receipt generation
+- Refund processing
+- Payment history tracking
+
+## 📱 Mobile Responsiveness
+
+The application is fully responsive and works seamlessly on:
+- 📱 Mobile phones (iOS/Android)
+- 📱 Tablets (iPad, Android tablets)
+- 💻 Desktop computers
+- 🖥️ Large monitors
 
 ## 🔧 API Endpoints
 
 ### Authentication
 - `POST /auth/login` - User login
-- `POST /auth/register` - User registration
-- `GET /auth/logout` - User logout
+- `POST /auth/logout` - User logout
+- `POST /auth/register` - Parent registration request
+- `GET /auth/profile` - User profile
+- `POST /auth/profile` - Update profile
 
 ### Events
 - `GET /events` - List all events
-- `GET /events/:id` - Get event details
-- `POST /events/:id/register` - Register for event
-- `POST /events/:id/cancel` - Cancel registration
+- `GET /events/:id` - Event details
+- `POST /events/create` - Create event (admin)
+- `POST /events/:id/edit` - Update event (admin)
+- `POST /events/:eventId/register-student` - Register student (teacher)
+
+### Parents
+- `GET /parents/dashboard` - Parent dashboard
+- `GET /parents/students` - Children list
+- `GET /parents/payment/:registrationId` - Payment page
+- `POST /parents/payment/:registrationId/complete` - Complete payment
 
 ### Admin
 - `GET /admin/dashboard` - Admin dashboard
-- `GET /admin/users` - Manage users
-- `GET /admin/reports/events` - Event reports
-- `GET /admin/reports/financial` - Financial reports
+- `GET /admin/users` - User management
+- `GET /admin/parent-requests` - Parent approval queue
+- `POST /admin/parent-requests/:id/approve` - Approve parent
 
-## 🛠️ Development
+## 🧪 Testing
 
-### Project Structure
-```
-school-events/
-├── database/
-│   ├── connection.js
-│   └── init.js
-├── public/
-│   ├── css/
-│   │   └── style.css
-│   └── js/
-│       └── main.js
-├── routes/
-│   ├── auth.js
-│   ├── events.js
-│   ├── parents.js
-│   └── admin.js
-├── services/
-│   └── emailService.js
-├── views/
-│   ├── layout.ejs
-│   ├── index.ejs
-│   ├── auth/
-│   ├── events/
-│   ├── parents/
-│   └── admin/
-├── server.js
-├── package.json
-└── README.md
-```
-
-### Adding New Features
-
-1. **New Routes**: Add to appropriate route file in `routes/`
-2. **New Views**: Create EJS templates in `views/`
-3. **Database Changes**: Update `database/init.js`
-4. **Styling**: Modify `public/css/style.css`
-
-### Testing
+### Running Tests
 ```bash
-# Run database tests
+# Run all tests
 npm test
 
-# Check for linting issues
-npm run lint
+# Run specific test suites
+npm run test:auth
+npm run test:payments
+npm run test:notifications
 ```
+
+### Test Coverage
+- Authentication and authorization
+- Payment processing
+- Notification system
+- Database operations
+- API endpoints
 
 ## 🚀 Deployment
 
 ### Production Setup
-
-1. **Environment Variables**
-   - Set `NODE_ENV=production`
-   - Configure production database
-   - Set up production email service
-
-2. **Database**
-   - Use production PostgreSQL instance
-   - Set up proper backups
-   - Configure connection pooling
-
-3. **Server**
-   - Use PM2 or similar process manager
-   - Set up reverse proxy (Nginx)
-   - Configure SSL certificates
+1. Set up PostgreSQL database
+2. Configure environment variables
+3. Set up SSL certificates
+4. Configure reverse proxy (nginx)
+5. Set up process manager (PM2)
 
 ### Docker Deployment
 ```bash
-# Build Docker image
-docker build -t school-events .
-
-# Run container
-docker run -p 3000:3000 school-events
+# Build and run with Docker Compose
+docker-compose up -d
 ```
+
+### Environment Variables for Production
+```env
+NODE_ENV=production
+APP_URL=https://your-domain.com
+SESSION_SECRET=strong_production_secret
+DB_SSL=true
+```
+
+## 🔒 Security Features
+
+- **Password Security**: bcrypt hashing with salt rounds
+- **Session Management**: Secure session handling with expiration
+- **CSRF Protection**: Cross-site request forgery protection
+- **Input Validation**: Comprehensive input sanitization
+- **Rate Limiting**: API rate limiting to prevent abuse
+- **SQL Injection Prevention**: Parameterized queries
+- **XSS Protection**: Output encoding and CSP headers
+
+## 📈 Performance Optimization
+
+- **Database Indexing**: Optimized database queries
+- **Caching**: Session and query caching
+- **Compression**: Gzip compression for responses
+- **CDN**: Static asset delivery via CDN
+- **Lazy Loading**: Image and content lazy loading
+- **Minification**: CSS and JS minification
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## 📄 License
+## 📝 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🆘 Support
 
 For support and questions:
-- Create an issue in the repository
-- Contact the development team
-- Check the documentation
+- 📧 Email: support@schoolevents.com
+- 📱 Phone: +1 (555) 123-4567
+- 💬 GitHub Issues: [Open an issue](https://github.com/your-username/school-events/issues)
 
-## 🔄 Updates
+## 🙏 Acknowledgments
 
-### Version 1.0.0
-- Initial release
-- Basic event management
-- Parent registration system
-- Email notifications
-- Admin dashboard
-
-### Planned Features
-- Mobile app integration
-- Advanced reporting
-- Payment gateway integration
-- Multi-language support
-- API for third-party integrations
+- Bootstrap team for the excellent CSS framework
+- Stripe for secure payment processing
+- PostgreSQL community for the robust database
+- All contributors and testers
 
 ---
 
-**Built with ❤️ for better school-parent communication** 
+**Built with ❤️ for better school management**

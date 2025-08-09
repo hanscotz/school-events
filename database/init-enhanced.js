@@ -34,8 +34,7 @@ const initEnhancedDatabase = async () => {
         }
 
         // Create default admin user with proper password hashing
-        const adminPassword = 'admin123';
-        const hashedPassword = await bcrypt.hash(adminPassword, 12); // Using higher salt rounds for security
+        // Using higher salt rounds for security
 
         await db.query(`
             INSERT INTO users (email, password_hash, first_name, last_name, role, is_active, email_verified)

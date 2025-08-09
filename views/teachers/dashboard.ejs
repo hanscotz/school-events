@@ -1,0 +1,120 @@
+<%- include('../partials/header', { title: title }) %>
+
+<div class="container my-5">
+  <h1 class="mb-4">Teacher Dashboard</h1>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-muted">Total Students</div>
+          <div class="h4"><%= (stats && stats.total_students) || 0 %></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-muted">Registrations</div>
+          <div class="h4"><%= (stats && stats.total_registrations) || 0 %></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-muted">Pending Payments</div>
+          <div class="h4"><%= (stats && stats.pending_payments) || 0 %></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-muted">Paid Registrations</div>
+          <div class="h4"><%= (stats && stats.paid_registrations) || 0 %></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="card mb-4">
+        <div class="card-header">Your Classes</div>
+        <div class="card-body">
+          <% if (classes && classes.length) { %>
+            <ul class="list-group">
+              <% classes.forEach(c => { %>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <span><strong><%= c.name || `Grade ${c.grade}${c.section ? ' - ' + c.section : ''}` %></strong></span>
+                  <span class="badge bg-primary"><%= c.actual_student_count %> students</span>
+                </li>
+              <% }) %>
+            </ul>
+          <% } else { %>
+            <p class="text-muted mb-0">No classes assigned.</p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card mb-4">
+        <div class="card-header">Active Events</div>
+        <div class="card-body">
+          <% if (activeEvents && activeEvents.length) { %>
+            <ul class="list-group">
+              <% activeEvents.forEach(e => { %>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <span>
+                    <strong><%= e.title %></strong>
+                    <small class="text-muted d-block"><%= moment(e.start_date).format('MMM DD, YYYY') %></small>
+                  </span>
+                  <span class="badge bg-secondary"><%= e.registered_count %> registered</span>
+                </li>
+              <% }) %>
+            </ul>
+          <% } else { %>
+            <p class="text-muted mb-0">No active events.</p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">Recent Registrations</div>
+    <div class="card-body">
+      <% if (recentRegistrations && recentRegistrations.length) { %>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Event</th>
+                <th>Date</th>
+                <th>Payment</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% recentRegistrations.forEach(r => { %>
+                <tr>
+                  <td><%= r.student_name %> (<%= r.grade %><%= r.section ? '-' + r.section : '' %>)</td>
+                  <td><%= r.event_title %></td>
+                  <td><%= moment(r.registration_date).format('MMM DD, YYYY HH:mm') %></td>
+                  <td><span class="badge bg-<%= r.payment_status === 'paid' ? 'success' : 'warning' %>"><%= r.payment_status || 'pending' %></span></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <p class="text-muted mb-0">No recent registrations.</p>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>
+

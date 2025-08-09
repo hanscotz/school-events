@@ -1,0 +1,80 @@
+<%- include('../partials/header', { title: title }) %>
+
+<div class="container my-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3">Event Requests</h1>
+  </div>
+
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="alert alert-danger"><%= error %></div>
+  <% } %>
+
+  <% if (!requests || requests.length === 0) { %>
+    <div class="text-center py-5 text-muted">No pending event requests.</div>
+  <% } else { %>
+    <div class="table-responsive">
+      <table class="table table-striped align-middle">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Requested By</th>
+            <th>Class</th>
+            <th>Start</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% requests.forEach(r => { %>
+            <tr>
+              <td><strong><%= r.title %></strong></td>
+              <td><%= r.requested_by %></td>
+              <td><%= (r.class_grade || '-') %> <%= (r.class_section || '') %></td>
+              <td><%= moment(r.start_date).format('MMM DD, YYYY HH:mm') %></td>
+              <td>
+                <div class="btn-group">
+                  <button class="btn btn-sm btn-success" onclick="approveEvent('<%= r.id %>')">Approve & Post</button>
+                  <button class="btn btn-sm btn-warning" onclick="editEventPrompt('<%= r.id %>')">Edit</button>
+                  <button class="btn btn-sm btn-danger" onclick="deleteEventRequest('<%= r.id %>')">Delete</button>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+<script>
+function approveEvent(eventId) {
+  fetch(`/admin/event-requests/${eventId}/approve`, { method: 'POST' })
+    .then(r => r.json())
+    .then(res => {
+      if (res.success) { alert('Approved'); location.reload(); } else { alert(res.message || 'Failed'); }
+    })
+    .catch(() => alert('Failed'));
+}
+
+function editEventPrompt(eventId) {
+  const title = prompt('New title (leave blank to keep)');
+  if (title === null) return;
+  fetch(`/admin/event-requests/${eventId}/edit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title })
+  }).then(r => r.json()).then(res => {
+    if (res.success) { alert('Updated'); location.reload(); } else { alert(res.message || 'Failed'); }
+  }).catch(() => alert('Failed'));
+}
+
+function deleteEventRequest(eventId) {
+  if (!confirm('Delete this draft request?')) return;
+  fetch(`/admin/event-requests/${eventId}`, { method: 'DELETE' })
+    .then(r => r.json()).then(res => {
+      if (res.success) { alert('Deleted'); location.reload(); } else { alert(res.message || 'Failed'); }
+    }).catch(() => alert('Failed'));
+}
+</script>
+
+<%- include('../partials/footer') %>
+

@@ -15,6 +15,7 @@ const db = require('./database/connection');
 const authRoutes = require('./routes/auth');
 const eventRoutes = require('./routes/events');
 const parentRoutes = require('./routes/parents');
+const teacherRoutes = require('./routes/teachers');
 const adminRoutes = require('./routes/admin');
 const indexRoutes = require('./routes/index');
 
@@ -45,21 +46,36 @@ app.use((req, res, next) => {
 
 // Routes
 app.use('/auth', authRoutes.router || authRoutes);
-app.use('/events', eventRoutes.router || eventRoutes);
-app.use('/parents', parentRoutes.router || parentRoutes);
+app.use('/events', eventRoutes);
+app.use('/parents', parentRoutes);
+app.use('/teachers', teacherRoutes);
 app.use('/admin', adminRoutes.router || adminRoutes);
 app.use('/', indexRoutes);
 
 
-// Dashboard route
+// Dashboard route - redirect based on role
 app.get('/dashboard', (req, res) => {
     if (!req.session.user) {
         return res.redirect('/auth/login');
     }
-    res.render('dashboard', { 
-        title: 'Dashboard',
-        user: req.session.user 
-    });
+    
+    // Redirect based on user role
+    switch (req.session.user.role) {
+        case 'admin':
+            res.redirect('/admin/dashboard');
+            break;
+        case 'teacher':
+            res.redirect('/teachers/dashboard');
+            break;
+        case 'parent':
+            res.redirect('/parents/dashboard');
+            break;
+        default:
+            res.render('dashboard', { 
+                title: 'Dashboard',
+                user: req.session.user 
+            });
+    }
 });
 
 // Error handling middleware

@@ -73,13 +73,15 @@ const setupNewDatabase = async () => {
                 last_name VARCHAR(100) NOT NULL,
                 grade VARCHAR(20) NOT NULL CHECK (grade IN ('FORM I', 'FORM II', 'FORM III', 'FORM IV', 'FORM V', 'FORM VI')),
                 section VARCHAR(10),
-                parent_id UUID REFERENCES users(id) ON DELETE CASCADE,
+                class_teacher_id UUID REFERENCES users(id),
+                parent_id UUID REFERENCES users(id) ON DELETE SET NULL,
                 date_of_birth DATE NOT NULL,
                 gender VARCHAR(10) CHECK (gender IN ('Male', 'Female', 'Other')),
                 address TEXT,
                 emergency_contact VARCHAR(20),
                 medical_info TEXT,
                 is_active BOOLEAN DEFAULT TRUE,
+                parent_approved BOOLEAN DEFAULT FALSE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
@@ -122,8 +124,11 @@ const setupNewDatabase = async () => {
                 id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
                 event_id UUID REFERENCES events(id) ON DELETE CASCADE,
                 student_id UUID REFERENCES students(id) ON DELETE CASCADE,
+                teacher_id UUID REFERENCES users(id) ON DELETE CASCADE,
                 parent_id UUID REFERENCES users(id) ON DELETE CASCADE,
                 registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                parent_notified BOOLEAN DEFAULT FALSE,
+                parent_notification_date TIMESTAMP,
                 payment_status VARCHAR(20) DEFAULT 'pending' CHECK (payment_status IN ('pending', 'paid', 'cancelled', 'refunded')),
                 payment_amount DECIMAL(10,2),
                 payment_method VARCHAR(50),
@@ -225,6 +230,61 @@ const setupNewDatabase = async () => {
                 icon VARCHAR(50),
                 is_active BOOLEAN DEFAULT TRUE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Create classes table
+        console.log('🏫 Creating classes table...');
+        await db.query(`
+            CREATE TABLE classes (
+                id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+                name VARCHAR(100) NOT NULL,
+                grade VARCHAR(20) NOT NULL CHECK (grade IN ('FORM I', 'FORM II', 'FORM III', 'FORM IV', 'FORM V', 'FORM VI')),
+                section VARCHAR(10) NOT NULL,
+                class_teacher_id UUID REFERENCES users(id) ON DELETE SET NULL,
+                academic_year VARCHAR(20) NOT NULL,
+                max_students INTEGER DEFAULT 40,
+                current_students INTEGER DEFAULT 0,
+                is_active BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(grade, section, academic_year)
+            )
+        `);
+
+        // Create parent registration requests table
+        console.log('📝 Creating parent registration requests table...');
+        await db.query(`
+            CREATE TABLE parent_registration_requests (
+                id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+                email VARCHAR(255) UNIQUE NOT NULL,
+                first_name VARCHAR(100) NOT NULL,
+                last_name VARCHAR(100) NOT NULL,
+                phone VARCHAR(20),
+                request_message TEXT,
+                student_names TEXT[],
+                status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+                reviewed_by UUID REFERENCES users(id),
+                reviewed_at TIMESTAMP,
+                rejection_reason TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Create SMS logs table
+        console.log('📱 Creating SMS logs table...');
+        await db.query(`
+            CREATE TABLE sms_logs (
+                id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+                recipient_phone VARCHAR(20) NOT NULL,
+                recipient_name VARCHAR(255),
+                message TEXT NOT NULL,
+                template_used VARCHAR(100),
+                status VARCHAR(20) DEFAULT 'sent' CHECK (status IN ('sent', 'failed', 'delivered')),
+                error_message TEXT,
+                cost DECIMAL(10,4),
+                sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                delivered_at TIMESTAMP
             )
         `);
 
@@ -379,6 +439,47 @@ const setupNewDatabase = async () => {
             `, [parent.email, hashedParentPassword, parent.firstName, parent.lastName, 'parent', true, true]);
         }
 
+        // Teacher users
+        console.log('👨‍🏫 Adding sample teachers...');
+        const teacherData = [
+            { email: 'teacher1@school.com', firstName: 'Emily', lastName: 'Davis', password: 'teacher123', phone: '+1234567891' },
+            { email: 'teacher2@school.com', firstName: 'Robert', lastName: 'Wilson', password: 'teacher456', phone: '+1234567892' },
+            { email: 'teacher3@school.com', firstName: 'Maria', lastName: 'Garcia', password: 'teacher789', phone: '+1234567893' }
+        ];
+
+        for (const teacher of teacherData) {
+            const hashedTeacherPassword = await bcrypt.hash(teacher.password, 12);
+            await db.query(`
+                INSERT INTO users (email, password_hash, first_name, last_name, role, phone, is_active, email_verified)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                ON CONFLICT (email) DO UPDATE SET 
+                    password_hash = EXCLUDED.password_hash,
+                    is_active = EXCLUDED.is_active
+            `, [teacher.email, hashedTeacherPassword, teacher.firstName, teacher.lastName, 'teacher', teacher.phone, true, true]);
+        }
+
+        // Create sample classes and assign teachers
+        console.log('🏫 Adding sample classes...');
+        const teacherEmails = ['teacher1@school.com', 'teacher2@school.com', 'teacher3@school.com'];
+        const classData = [
+            { name: 'Form 1A', grade: 'FORM I', section: 'A', teacherEmail: teacherEmails[0] },
+            { name: 'Form 2A', grade: 'FORM II', section: 'A', teacherEmail: teacherEmails[1] },
+            { name: 'Form 3A', grade: 'FORM III', section: 'A', teacherEmail: teacherEmails[2] }
+        ];
+
+        for (const classInfo of classData) {
+            // Get teacher ID
+            const teacherResult = await db.query('SELECT id FROM users WHERE email = $1', [classInfo.teacherEmail]);
+            if (teacherResult.rows.length > 0) {
+                const teacherId = teacherResult.rows[0].id;
+                await db.query(`
+                    INSERT INTO classes (name, grade, section, class_teacher_id, academic_year)
+                    VALUES ($1, $2, $3, $4, $5)
+                    ON CONFLICT (grade, section, academic_year) DO NOTHING
+                `, [classInfo.name, classInfo.grade, classInfo.section, teacherId, '2024-2025']);
+            }
+        }
+
         // Create sample students
         console.log('🎓 Adding sample students...');
         const studentData = [
@@ -388,22 +489,40 @@ const setupNewDatabase = async () => {
             { studentId: 'STU004', firstName: 'Diana', lastName: 'Johnson', grade: 'FORM IV', parentEmail: 'parent3@example.com' }
         ];
 
+        // First, let's get teacher IDs for assignment
+        const teacherIds = await db.query('SELECT id, email FROM users WHERE role = $1', ['teacher']);
+        const teacherMap = {};
+        teacherIds.rows.forEach(teacher => {
+            teacherMap[teacher.email] = teacher.id;
+        });
+
         for (const student of studentData) {
             const parentResult = await db.query('SELECT id FROM users WHERE email = $1', [student.parentEmail]);
             if (parentResult.rows.length > 0) {
                 const parentId = parentResult.rows[0].id;
+                // Assign teacher based on grade
+                let teacherId = null;
+                if (student.grade === 'FORM I') teacherId = teacherMap['teacher1@school.com'];
+                else if (student.grade === 'FORM II') teacherId = teacherMap['teacher2@school.com'];
+                else if (student.grade === 'FORM III') teacherId = teacherMap['teacher3@school.com'];
+                else teacherId = teacherMap['teacher1@school.com']; // Default
+
                 await db.query(`
-                    INSERT INTO students (student_id, first_name, last_name, grade, parent_id, date_of_birth, gender)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7)
+                    INSERT INTO students (student_id, first_name, last_name, grade, section, class_teacher_id, parent_id, date_of_birth, gender, is_active, parent_approved)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
                     ON CONFLICT (student_id) DO NOTHING
                 `, [
                     student.studentId,
                     student.firstName,
                     student.lastName,
                     student.grade,
+                    'A', // Default section
+                    teacherId,
                     parentId,
                     '2010-01-01',
-                    'Male'
+                    'Male',
+                    true,
+                    true
                 ]);
             }
         }
@@ -588,6 +707,9 @@ const setupNewDatabase = async () => {
         console.log('');
         console.log('👤 Default users created with hashed passwords:');
         console.log('   🔑 Admin: admin@school.com / admin123');
+        console.log('   👨‍🏫 Teacher 1: teacher1@school.com / teacher123');
+        console.log('   👨‍🏫 Teacher 2: teacher2@school.com / teacher456');
+        console.log('   👨‍🏫 Teacher 3: teacher3@school.com / teacher789');
         console.log('   👨‍👩‍👧‍👦 Parent 1: parent1@example.com / parent123');
         console.log('   👨‍👩‍👧‍👦 Parent 2: parent2@example.com / parent456');
         console.log('   👨‍👩‍👧‍👦 Parent 3: parent3@example.com / parent789');

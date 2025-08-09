@@ -123,6 +123,61 @@
                                     </div>
                                 </div>
                                 
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Student Index No.</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-hash"></i></span>
+                                            <input type="text" class="form-control" name="indexNo" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Student Date of Birth</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                                            <input type="date" class="form-control" name="dateOfBirth" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Student First Name</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                            <input type="text" class="form-control" name="childFirstName" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Student Last Name</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                            <input type="text" class="form-control" name="childLastName" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Class (Grade)</label>
+                                        <select class="form-select" name="grade" required>
+                                            <option value="">Select grade</option>
+                                            <% (classes || []).forEach(c => { %>
+                                                <option value="<%= c.grade %>"><%= c.grade %></option>
+                                            <% }) %>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Section</label>
+                                        <select class="form-select" name="section" required>
+                                            <option value="">Select section</option>
+                                            <% (classes || []).forEach(c => { %>
+                                                <option value="<%= c.section %>"><%= c.section %></option>
+                                            <% }) %>
+                                        </select>
+                                    </div>
+                                </div>
+
                                 <div class="mb-3">
                                     <label for="password" class="form-label">Password</label>
                                     <div class="input-group">

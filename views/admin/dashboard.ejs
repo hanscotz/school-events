@@ -1,6 +1,6 @@
 <%- include('../partials/header', { title: title }) %>
 
-<div class="container-fluid">
+<div class="container-fluid admin-dashboard">
     <div class="row">
         <!-- Sidebar -->
         <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
@@ -19,6 +19,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="/admin/classes">
+                            <i class="bi bi-building me-2"></i>
+                            Manage Classes
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="/events/admin/create">
                             <i class="bi bi-plus-circle me-2"></i>
                             Create Event
@@ -28,6 +34,12 @@
                         <a class="nav-link" href="/admin/registrations">
                             <i class="bi bi-credit-card me-2"></i>
                             Manage Registrations
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/event-requests">
+                            <i class="bi bi-inbox me-2"></i>
+                            Event Requests
                         </a>
                     </li>
                 </ul>
@@ -40,8 +52,8 @@
                 <h1 class="h2">Admin Dashboard</h1>
                 <div class="btn-toolbar mb-2 mb-md-0">
                     <div class="btn-group me-2">
-                        <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary">Print</button>
+                        <a href="/admin/event-requests" class="btn btn-sm btn-warning">Review Event Requests</a>
+                        <a href="/admin/parent-requests" class="btn btn-sm btn-outline-secondary">Parent Requests</a>
                     </div>
                 </div>
             </div>
@@ -105,6 +117,22 @@
                             <div class="row no-gutters align-items-center">
                                 <div class="col mr-2">
                                     <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                        Pending Event Requests</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800"><%= stats.pending_event_requests || 0 %></div>
+                                </div>
+                                <div class="col-auto">
+                                    <a class="btn btn-sm btn-outline-warning" href="/admin/event-requests">Review</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-warning shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                         Total Revenue</div>
                                     <div class="h5 mb-0 font-weight-bold text-gray-800">$<%= stats.total_revenue || 0 %></div>
                                 </div>
@@ -122,7 +150,7 @@
                 <div class="col-12">
                     <div class="card shadow">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Recent Events</h6>
+                            <h6 class="m-0 font-weight-bold text-white">Recent Events</h6>
                         </div>
                         <div class="card-body">
                             <% if (recentEvents && recentEvents.length > 0) { %>
@@ -176,7 +204,7 @@
                 <div class="col-12">
                     <div class="card shadow">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Recent Registrations</h6>
+                            <h6 class="m-0 font-weight-bold text-white">Recent Registrations</h6>
                         </div>
                         <div class="card-body">
                             <% if (recentRegistrations && recentRegistrations.length > 0) { %>
@@ -224,7 +252,7 @@
                 <div class="col-12">
                     <div class="card shadow">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Upcoming Events</h6>
+                            <h6 class="m-0 font-weight-bold text-white">Upcoming Events</h6>
                         </div>
                         <div class="card-body">
                             <% if (upcomingEvents && upcomingEvents.length > 0) { %>

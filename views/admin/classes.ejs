@@ -1,0 +1,375 @@
+<%- include('../partials/header') %>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <%- include('../partials/sidebar') %>
+
+        <!-- Main Content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-collection"></i>
+                    Class Management
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createClassModal">
+                        <i class="bi bi-plus-circle"></i>
+                        Create New Class
+                    </button>
+                </div>
+            </div>
+
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <%= error %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            <% } %>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-list-ul"></i>
+                                Classes Overview
+                                <span class="badge bg-primary ms-2"><%= classes.length %></span>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <% if (classes.length === 0) { %>
+                                <div class="text-center py-5">
+                                    <i class="bi bi-collection display-4 text-muted"></i>
+                                    <h5 class="mt-3 text-muted">No Classes Found</h5>
+                                    <p class="text-muted">Create your first class to get started with student management.</p>
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createClassModal">
+                                        <i class="bi bi-plus-circle"></i>
+                                        Create First Class
+                                    </button>
+                                </div>
+                            <% } else { %>
+                                <div class="row">
+                                    <% classes.forEach(classItem => { %>
+                                        <div class="col-md-6 col-lg-4 mb-4">
+                                            <div class="card h-100 shadow-sm">
+                                                <div class="card-header bg-light">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <h6 class="card-title mb-0">
+                                                            <i class="bi bi-mortarboard text-primary"></i>
+                                                            <%= classItem.name %>
+                                                        </h6>
+                                                        <span class="badge bg-<%= classItem.is_active ? 'success' : 'secondary' %>">
+                                                            <%= classItem.is_active ? 'Active' : 'Inactive' %>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="mb-3">
+                                                        <small class="text-muted d-block">Grade & Section</small>
+                                                        <strong><%= classItem.grade %> - Section <%= classItem.section %></strong>
+                                                    </div>
+                                                    
+                                                    <div class="mb-3">
+                                                        <small class="text-muted d-block">Class Teacher</small>
+                                                        <% if (classItem.teacher_name) { %>
+                                                            <strong><%= classItem.teacher_name %></strong>
+                                                        <% } else { %>
+                                                            <span class="text-warning">
+                                                                <i class="bi bi-exclamation-triangle"></i>
+                                                                No teacher assigned
+                                                            </span>
+                                                        <% } %>
+                                                     <div class="mt-2">
+                                                         <label class="form-label small mb-1">Assign/Change Teacher</label>
+                                                         <div class="d-flex gap-2 align-items-center">
+                                                             <select class="form-select form-select-sm d-inline-block w-auto" id="teacherSelect_<%= classItem.id %>">
+                                                                 <option value="">No teacher</option>
+                                                                 <% teachers.forEach(teacher => { %>
+                                                                     <option value="<%= teacher.id %>" <%= (classItem.class_teacher_id === teacher.id) ? 'selected' : '' %>><%= teacher.name %></option>
+                                                                 <% }) %>
+                                                             </select>
+                                                             <button class="btn btn-sm btn-outline-primary" onclick="assignTeacher('<%= classItem.id %>')">
+                                                                 <i class="bi bi-check2-circle"></i> Assign
+                                                             </button>
+                                                         </div>
+                                                     </div>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <small class="text-muted d-block">Students</small>
+                                                        <div class="d-flex justify-content-between">
+                                                            <span>
+                                                                <strong><%= classItem.actual_student_count || 0 %></strong> 
+                                                                / <%= classItem.max_students %>
+                                                            </span>
+                                                            <div class="progress" style="width: 60%; height: 8px;">
+                                                                <div 
+                                                                    class="progress-bar bg-primary" 
+                                                                    style="width: <%= ((classItem.actual_student_count || 0) / classItem.max_students * 100) %>%"
+                                                                ></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mb-2">
+                                                        <small class="text-muted d-block">Academic Year</small>
+                                                        <span><%= classItem.academic_year %></span>
+                                                    </div>
+                                                </div>
+                                                <div class="card-footer bg-transparent">
+                                                    <div class="btn-group w-100" role="group">
+                                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="viewClassDetails('<%= classItem.id %>')">
+                                                            <i class="bi bi-eye"></i>
+                                                            View
+                                                        </button>
+                                                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="editClass('<%= classItem.id %>')">
+                                                            <i class="bi bi-pencil"></i>
+                                                            Edit
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <% }) %>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Row -->
+            <div class="row mt-4">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="bi bi-collection display-6 text-primary"></i>
+                            <h4 class="mt-2"><%= classes.length %></h4>
+                            <p class="text-muted mb-0">Total Classes</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="bi bi-people display-6 text-success"></i>
+                            <h4 class="mt-2"><%= classes.reduce((sum, c) => sum + parseInt(c.actual_student_count || 0), 0) %></h4>
+                            <p class="text-muted mb-0">Total Students</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="bi bi-mortarboard display-6 text-info"></i>
+                            <h4 class="mt-2"><%= classes.filter(c => c.teacher_name).length %></h4>
+                            <p class="text-muted mb-0">Classes with Teachers</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="bi bi-check-circle display-6 text-warning"></i>
+                            <h4 class="mt-2"><%= classes.filter(c => c.is_active).length %></h4>
+                            <p class="text-muted mb-0">Active Classes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Create Class Modal -->
+<div class="modal fade" id="createClassModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-plus-circle text-primary"></i>
+                    Create New Class
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="createClassForm">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="className" class="form-label">
+                                    Class Name <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="className" name="name" placeholder="e.g., Form 1A" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="academicYear" class="form-label">
+                                    Academic Year <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="academicYear" name="academicYear" value="2024-2025" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="grade" class="form-label">
+                                    Grade <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="grade" name="grade" required>
+                                    <option value="">Select Grade</option>
+                                    <option value="FORM I">Form I</option>
+                                    <option value="FORM II">Form II</option>
+                                    <option value="FORM III">Form III</option>
+                                    <option value="FORM IV">Form IV</option>
+                                    <option value="FORM V">Form V</option>
+                                    <option value="FORM VI">Form VI</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="section" class="form-label">
+                                    Section <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="section" name="section" placeholder="e.g., A, B, C" maxlength="10" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="classTeacher" class="form-label">
+                                    Class Teacher
+                                </label>
+                                <select class="form-select" id="classTeacher" name="classTeacherId">
+                                    <option value="">No teacher assigned</option>
+                                    <% teachers.forEach(teacher => { %>
+                                        <option value="<%= teacher.id %>"><%= teacher.name %></option>
+                                    <% }) %>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="maxStudents" class="form-label">
+                                    Maximum Students
+                                </label>
+                                <input type="number" class="form-control" id="maxStudents" name="maxStudents" value="40" min="1" max="100">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i>
+                        Create Class
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Handle create class form submission
+document.getElementById('createClassForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
+    
+    fetch('/admin/classes/create', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            showNotification(result.message, 'success');
+            bootstrap.Modal.getInstance(document.getElementById('createClassModal')).hide();
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showNotification(result.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred while creating the class', 'error');
+    });
+});
+
+function viewClassDetails(classId) {
+    // This could open a detailed view modal or navigate to a detailed page
+    console.log('View details for class:', classId);
+    // For now, just show a placeholder
+    showNotification('Class details view coming soon!', 'info');
+}
+
+function editClass(classId) {
+    // This could open an edit modal
+    console.log('Edit class:', classId);
+    showNotification('Class editing coming soon!', 'info');
+}
+
+function assignTeacher(classId) {
+    const select = document.getElementById(`teacherSelect_${classId}`);
+    if (!select) return;
+    const classTeacherId = select.value;
+
+    fetch(`/admin/classes/${classId}/assign-teacher`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ classTeacherId })
+    })
+    .then(r => r.json())
+    .then(result => {
+        if (result.success) {
+            showNotification('Teacher assignment updated', 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification(result.message || 'Failed to assign teacher', 'error');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        showNotification('Failed to assign teacher', 'error');
+    });
+}
+
+function showNotification(message, type) {
+    const alertDiv = document.createElement('div');
+    const alertType = type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info';
+    const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle';
+    
+    alertDiv.className = `alert alert-${alertType} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    alertDiv.innerHTML = `
+        <i class="bi bi-${icon}"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.parentNode.removeChild(alertDiv);
+        }
+    }, 5000);
+}
+</script>
+
+<%- include('../partials/footer') %>

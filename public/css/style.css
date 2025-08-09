@@ -1,7 +1,7 @@
 /* Custom CSS for School Events */
 
 :root {
-    --primary-blue: #1976d2;
+    --primary-blue: #2196f3;
     --secondary-blue: #2196f3;
     --light-blue: #e3f2fd;
     --dark-blue: #0d47a1;
@@ -349,8 +349,128 @@ body {
 
 /* Parent Name Styling */
 .parent-name {
-    color: var(--white) !important;
+    color: var(--black) !important;
     font-weight: 600;
+}
+
+/* Dashboard-specific styling - only applies to admin and parent dashboards */
+.admin-dashboard .table tbody tr,
+.parent-dashboard .table tbody tr {
+    background-color: var(--white);
+    transition: all 0.3s ease;
+}
+
+.admin-dashboard .table tbody tr:hover,
+.parent-dashboard .table tbody tr:hover {
+    background-color: rgba(25, 118, 210, 0.05);
+}
+
+/* Dashboard-specific Event Cards Styling */
+.admin-dashboard .card .card,
+.parent-dashboard .card .card {
+    background-color: var(--white);
+    border: 1px solid #e9ecef;
+}
+
+.admin-dashboard .card .card-body,
+.parent-dashboard .card .card-body {
+    background-color: var(--white);
+}
+
+/* Dashboard-specific Recent Events Table Styling */
+.admin-dashboard .table-responsive .table tbody tr,
+.parent-dashboard .table-responsive .table tbody tr {
+    background-color: var(--white);
+}
+
+/* Dashboard-specific Upcoming Events Cards */
+.admin-dashboard .row .col-md-6 .col-lg-4 .card,
+.parent-dashboard .row .col-md-6 .col-lg-4 .card {
+    background-color: var(--white);
+    border: 1px solid #e9ecef;
+}
+
+.admin-dashboard .row .col-md-6 .col-lg-4 .card .card-body,
+.parent-dashboard .row .col-md-6 .col-lg-4 .card .card-body {
+    background-color: var(--white);
+}
+
+/* Dashboard Text Color Improvements */
+/* Blue backgrounds with white text */
+.admin-dashboard .card-header,
+.parent-dashboard .card-header,
+.admin-dashboard .bg-primary,
+.parent-dashboard .bg-primary,
+.admin-dashboard .bg-success,
+.parent-dashboard .bg-success,
+.admin-dashboard .bg-info,
+.parent-dashboard .bg-info,
+.admin-dashboard .bg-warning,
+.parent-dashboard .bg-warning,
+.admin-dashboard .bg-danger,
+.parent-dashboard .bg-danger {
+    color: var(--white) !important;
+}
+
+/* White backgrounds with blue text */
+.admin-dashboard .card-body,
+.parent-dashboard .card-body,
+.admin-dashboard .table tbody td,
+.parent-dashboard .table tbody td,
+.admin-dashboard .card .card-body,
+.parent-dashboard .card .card-body {
+    color: var(--primary-blue) !important;
+}
+
+/* Ensure headings on white backgrounds are blue */
+.admin-dashboard .card-body h1,
+.admin-dashboard .card-body h2,
+.admin-dashboard .card-body h3,
+.admin-dashboard .card-body h4,
+.admin-dashboard .card-body h5,
+.admin-dashboard .card-body h6,
+.parent-dashboard .card-body h1,
+.parent-dashboard .card-body h2,
+.parent-dashboard .card-body h3,
+.parent-dashboard .card-body h4,
+.parent-dashboard .card-body h5,
+.parent-dashboard .card-body h6 {
+    color: var(--primary-blue) !important;
+}
+
+/* Ensure text in white cards is blue */
+.admin-dashboard .card .card-body .card-title,
+.parent-dashboard .card .card-body .card-title,
+.admin-dashboard .card .card-body .card-text,
+.parent-dashboard .card .card-body .card-text {
+    color: var(--primary-blue) !important;
+}
+
+/* Keep parent names black for readability */
+.admin-dashboard .parent-name,
+.parent-dashboard .parent-name {
+    color: var(--black) !important;
+    font-weight: 600;
+}
+
+/* Make specific dashboard headings white */
+.admin-dashboard .card-header h5,
+.parent-dashboard .card-header h5,
+.admin-dashboard .card-header h4,
+.parent-dashboard .card-header h4,
+.admin-dashboard .card-header h3,
+.parent-dashboard .card-header h3,
+.admin-dashboard .card-header h2,
+.parent-dashboard .card-header h2,
+.admin-dashboard .card-header h1,
+.parent-dashboard .card-header h1 {
+    color: var(--white) !important;
+}
+
+/* Make section headings white in dashboard cards */
+.admin-dashboard .card .card-header,
+.parent-dashboard .card .card-header {
+    color: var(--white) !important;
 }
 
 /* Badges */
@@ -567,6 +687,45 @@ footer {
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--dark-blue);
+}
+
+/* Profile Dropdown Styling */
+.navbar .dropdown-menu {
+    background-color: var(--white);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    margin-top: 8px;
+    min-width: 200px;
+}
+
+.navbar .dropdown-item {
+    color: var(--dark-gray);
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+    margin: 2px 8px;
+}
+
+.navbar .dropdown-item:hover {
+    background-color: var(--light-blue);
+    color: var(--primary-blue);
+    transform: translateX(4px);
+}
+
+.navbar .dropdown-item i {
+    width: 16px;
+    text-align: center;
+}
+
+/* Profile Picture Styling */
+.navbar .nav-link img {
+    transition: all 0.3s ease;
+}
+
+.navbar .nav-link:hover img {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
 }
 
 /* Print Styles */

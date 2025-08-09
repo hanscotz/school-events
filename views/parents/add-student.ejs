@@ -1,3 +1,57 @@
+<%- include('../partials/header', { title: title }) %>
+
+<div class="container my-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h4 mb-0">Add Child</h1>
+    <a href="/parents/students" class="btn btn-outline-secondary">Back to My Children</a>
+  </div>
+
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="alert alert-danger"><%= error %></div>
+  <% } %>
+
+  <form method="POST" action="/parents/students/add" class="row g-3">
+    <div class="col-md-4">
+      <label class="form-label">Student Index No.</label>
+      <input class="form-control" name="indexNo" required value="<%= (typeof formData !== 'undefined' && formData ? formData.indexNo : '') %>" />
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">First Name</label>
+      <input class="form-control" name="firstName" required value="<%= (typeof formData !== 'undefined' && formData ? formData.firstName : '') %>" />
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Last Name</label>
+      <input class="form-control" name="lastName" required value="<%= (typeof formData !== 'undefined' && formData ? formData.lastName : '') %>" />
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Date of Birth</label>
+      <input type="date" class="form-control" name="dateOfBirth" required value="<%= (typeof formData !== 'undefined' && formData ? formData.dateOfBirth : '') %>" />
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Class (Grade)</label>
+      <select class="form-select" name="grade" required>
+        <option value="">Select grade</option>
+        <% (classes || []).forEach(c => { %>
+          <option value="<%= c.grade %>" <%= (typeof formData !== 'undefined' && formData && formData.grade === c.grade) ? 'selected' : '' %>><%= c.grade %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Section</label>
+      <select class="form-select" name="section" required>
+        <option value="">Select section</option>
+        <% (classes || []).forEach(c => { %>
+          <option value="<%= c.section %>" <%= (typeof formData !== 'undefined' && formData && formData.section === c.section) ? 'selected' : '' %>><%= c.section %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="col-12">
+      <button class="btn btn-primary" type="submit">Add Child</button>
+    </div>
+  </form>
+</div>
+
+<%- include('../partials/footer') %>
 <!DOCTYPE html>
 <html lang="en">
 <head>

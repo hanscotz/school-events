@@ -1,0 +1,81 @@
+<%- include('../partials/header', { title: title }) %>
+
+<div class="container my-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h4 mb-0">Add Student</h1>
+    <a href="/teachers/students" class="btn btn-outline-secondary">Back to Students</a>
+  </div>
+
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="alert alert-danger"><%= error %></div>
+  <% } %>
+
+  <form method="POST" action="/teachers/students/add" class="row g-3">
+    <div class="col-md-4">
+      <label class="form-label">Student ID</label>
+      <input name="studentId" class="form-control" required value="<%= (typeof formData !== 'undefined' && formData ? formData.studentId : '') %>" />
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">First Name</label>
+      <input name="firstName" class="form-control" required value="<%= (typeof formData !== 'undefined' && formData ? formData.firstName : '') %>" />
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Last Name</label>
+      <input name="lastName" class="form-control" required value="<%= (typeof formData !== 'undefined' && formData ? formData.lastName : '') %>" />
+    </div>
+
+    <div class="col-md-4">
+      <label class="form-label">Grade</label>
+      <select name="grade" class="form-select" required>
+        <option value="">Select grade</option>
+        <% (classes || []).forEach(c => { %>
+          <option value="<%= c.grade %>" <%= (typeof formData !== 'undefined' && formData && formData.grade === c.grade) ? 'selected' : '' %>><%= c.grade %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Section</label>
+      <select name="section" class="form-select" required>
+        <option value="">Select section</option>
+        <% (classes || []).forEach(c => { %>
+          <option value="<%= c.section %>" <%= (typeof formData !== 'undefined' && formData && formData.section === c.section) ? 'selected' : '' %>><%= c.section %></option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <label class="form-label">Date of Birth</label>
+      <input type="date" name="dateOfBirth" class="form-control" required value="<%= (typeof formData !== 'undefined' && formData ? formData.dateOfBirth : '') %>" />
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Gender</label>
+      <select name="gender" class="form-select">
+        <option value="">Select</option>
+        <option value="Male" <%= (typeof formData !== 'undefined' && formData && formData.gender === 'Male') ? 'selected' : '' %>>Male</option>
+        <option value="Female" <%= (typeof formData !== 'undefined' && formData && formData.gender === 'Female') ? 'selected' : '' %>>Female</option>
+        <option value="Other" <%= (typeof formData !== 'undefined' && formData && formData.gender === 'Other') ? 'selected' : '' %>>Other</option>
+      </select>
+    </div>
+
+    <div class="col-md-8">
+      <label class="form-label">Address</label>
+      <input name="address" class="form-control" value="<%= (typeof formData !== 'undefined' && formData ? formData.address : '') %>" />
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Emergency Contact</label>
+      <input name="emergencyContact" class="form-control" value="<%= (typeof formData !== 'undefined' && formData ? formData.emergencyContact : '') %>" />
+    </div>
+
+    <div class="col-12">
+      <label class="form-label">Medical Info</label>
+      <textarea name="medicalInfo" class="form-control" rows="3"><%= (typeof formData !== 'undefined' && formData ? formData.medicalInfo : '') %></textarea>
+    </div>
+
+    <div class="col-12">
+      <button class="btn btn-primary" type="submit">Add Student</button>
+    </div>
+  </form>
+</div>
+
+<%- include('../partials/footer') %>
+

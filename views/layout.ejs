@@ -3,24 +3,440 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= typeof title !== 'undefined' ? title : 'School Events' %></title>
+    <title><%= typeof title !== 'undefined' ? title : 'School Events Management System' %></title>
     
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link href="/css/style.css?v=1.0" rel="stylesheet">
-    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- AOS Animation Library -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #06b6d4;
+            --dark-color: #1f2937;
+            --light-color: #f8fafc;
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: var(--gradient-primary) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-lg);
+            border: none;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-brand i {
+            font-size: 1.8rem;
+            margin-right: 0.5rem;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            transform: translateY(-2px);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background: white;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after {
+            width: 80%;
+        }
+
+        /* Cards */
+        .card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            background: white;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .card-header {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 1.5rem 2rem;
+            font-weight: 600;
+            border-radius: 20px 20px 0 0 !important;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        /* Buttons */
+        .btn {
+            border-radius: 12px;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: all 0.5s;
+        }
+
+        .btn:hover:before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-success {
+            background: var(--gradient-success);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-warning {
+            background: var(--gradient-warning);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Form Controls */
+        .form-control, .form-select {
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Alerts */
+        .alert {
+            border-radius: 16px;
+            border: none;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+        }
+
+        /* Badges */
+        .badge {
+            border-radius: 12px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        /* Tables */
+        .table {
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            background: white;
+        }
+
+        .table thead th {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 1rem;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 6rem 0 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.5;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Notification Badge */
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        /* Stats Cards */
+        .stats-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .stats-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            border: 1px solid #f1f5f9;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-color);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--dark-color);
+            color: white;
+            padding: 3rem 0 2rem;
+            margin-top: 4rem;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 4rem 0 2rem;
+            }
+            
+            .card-body {
+                padding: 1.5rem;
+            }
+            
+            .stats-card {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
+
+        /* Event Cards */
+        .event-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            border: 1px solid #f1f5f9;
+        }
+
+        .event-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .event-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .event-date {
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .event-category {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(255,255,255,0.2);
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="/">
-                <i class="bi bi-calendar-event me-2"></i>
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-mortarboard-fill"></i>
                 School Events
             </a>
             
@@ -31,48 +447,96 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/">Home</a>
+                        <a class="nav-link" href="/">
+                            <i class="bi bi-house-fill me-1"></i>Home
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/events">Events</a>
+                        <a class="nav-link" href="/events">
+                            <i class="bi bi-calendar-event me-1"></i>Events
+                        </a>
                     </li>
                     <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
                         <li class="nav-item">
-                            <a class="nav-link" href="/dashboard">Dashboard</a>
+                            <a class="nav-link" href="/dashboard">
+                                <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                            </a>
                         </li>
+                        
+                        <!-- Role-specific navigation -->
                         <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                    <i class="bi bi-gear me-1"></i>Admin
+                                    <i class="bi bi-gear-fill me-1"></i>Admin
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" href="/admin/dashboard">
-                                        <i class="bi bi-speedometer2 me-2"></i>Admin Dashboard
+                                        <i class="bi bi-speedometer2 me-2"></i>Dashboard
                                     </a></li>
                                     <li><a class="dropdown-item" href="/admin/users">
-                                        <i class="bi bi-people me-2"></i>Manage Users
+                                        <i class="bi bi-people me-2"></i>Users
                                     </a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="/events/admin/create">
+                                    <li><a class="dropdown-item" href="/admin/parent-requests">
+                                        <i class="bi bi-person-check me-2"></i>Parent Requests
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/admin/classes">
+                                        <i class="bi bi-building me-2"></i>Classes
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/events/create">
                                         <i class="bi bi-plus-circle me-2"></i>Create Event
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/admin/reports">
+                                        <i class="bi bi-graph-up me-2"></i>Reports
                                     </a></li>
                                 </ul>
                             </li>
-                        <% } %>
-                        <% if (typeof user !== 'undefined' && user && user.role === 'parent') { %>
+                        <% } else if (typeof user !== 'undefined' && user && user.role === 'teacher') { %>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                    <i class="bi bi-people me-1"></i>Parent
+                                    <i class="bi bi-person-workspace me-1"></i>Teacher
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="/teachers/dashboard">
+                                        <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/teachers/students">
+                                        <i class="bi bi-people me-2"></i>My Students
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/teachers/students/add">
+                                        <i class="bi bi-person-plus me-2"></i>Add Student
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/teachers/event-registrations">
+                                        <i class="bi bi-calendar-check me-2"></i>Event Registrations
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/teachers/class-summary">
+                                        <i class="bi bi-bar-chart me-2"></i>Class Summary
+                                    </a></li>
+                                </ul>
+                            </li>
+                        <% } else if (typeof user !== 'undefined' && user && user.role === 'parent') { %>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle position-relative" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-person-hearts me-1"></i>Parent
+                                    <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" href="/parents/dashboard">
-                                        <i class="bi bi-house me-2"></i>Parent Dashboard
+                                        <i class="bi bi-speedometer2 me-2"></i>Dashboard
                                     </a></li>
                                     <li><a class="dropdown-item" href="/parents/students">
-                                        <i class="bi bi-person-badge me-2"></i>My Students
+                                        <i class="bi bi-people me-2"></i>My Children
                                     </a></li>
-                                    <li><a class="dropdown-item" href="/parents/registrations">
-                                        <i class="bi bi-calendar-check me-2"></i>My Registrations
+                                    <li><a class="dropdown-item" href="/parents/search-events">
+                                        <i class="bi bi-search me-2"></i>Browse Events
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/parents/payment-history">
+                                        <i class="bi bi-credit-card me-2"></i>Payment History
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/parents/notifications">
+                                        <i class="bi bi-bell me-2"></i>Notifications
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="/parents/feedback">
+                                        <i class="bi bi-chat-square-text me-2"></i>Feedback
                                     </a></li>
                                 </ul>
                             </li>
@@ -82,40 +546,37 @@
                 
                 <ul class="navbar-nav">
                     <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
-                        
-                        <!-- User Profile Dropdown -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-person-circle me-1"></i>
-                                <%= typeof user !== 'undefined' && user ? user.firstName : 'User' %>
-                                <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
-                                    <span class="badge bg-warning text-dark ms-1">Admin</span>
-                                <% } else if (typeof user !== 'undefined' && user && user.role === 'parent') { %>
-                                    <span class="badge bg-info ms-1">Parent</span>
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                                <% if (typeof user !== 'undefined' && user && user.profilePic) { %>
+                                    <img src="<%= user.profilePic %>" alt="Profile" class="rounded-circle me-2" width="32" height="32">
+                                <% } else { %>
+                                    <i class="bi bi-person-circle me-2 fs-5"></i>
                                 <% } %>
+                                <%= typeof user !== 'undefined' && user ? user.firstName + ' ' + user.lastName : 'User' %>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="/auth/profile">
-                                    <i class="bi bi-person me-2"></i>My Profile
-                                </a></li>
-                                <li><a class="dropdown-item" href="/dashboard">
-                                    <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                                    <i class="bi bi-person me-2"></i>Profile
                                 </a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="/auth/logout">
-                                    <i class="bi bi-box-arrow-right me-2"></i>Logout
-                                </a></li>
+                                <li>
+                                    <form action="/auth/logout" method="POST" class="d-inline">
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="bi bi-box-arrow-right me-2"></i>Logout
+                                        </button>
+                                    </form>
+                                </li>
                             </ul>
                         </li>
                     <% } else { %>
-                        <!-- Guest User Navigation -->
                         <li class="nav-item">
                             <a class="nav-link" href="/auth/login">
                                 <i class="bi bi-box-arrow-in-right me-1"></i>Login
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link btn btn-outline-light btn-sm ms-2" href="/auth/register">
+                            <a class="nav-link" href="/auth/register">
                                 <i class="bi bi-person-plus me-1"></i>Register
                             </a>
                         </li>
@@ -126,132 +587,200 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="main-content">
-        <!-- Flash Messages -->
-        <% if (typeof success !== 'undefined' && success) { %>
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="bi bi-check-circle me-2"></i>
-                <%= success %>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        <% } %>
-        
-        <% if (typeof error !== 'undefined' && error) { %>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="bi bi-exclamation-triangle me-2"></i>
-                <%= error %>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        <% } %>
-
-        <%- typeof content !== 'undefined' ? content : '' %>
+    <main style="padding-top: 76px; min-height: calc(100vh - 76px);">
+        <%- body %>
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-light py-4 mt-5">
+    <footer class="footer">
         <div class="container">
             <div class="row">
-                <div class="col-md-4">
-                    <h5><i class="bi bi-calendar-event me-2"></i>School Events</h5>
-                    <p class="mb-0">Connecting parents with their children's school activities.</p>
-                    <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
-                        <small class="text-muted">
-                            <i class="bi bi-person-check me-1"></i>
-                            Welcome back, <%= typeof user !== 'undefined' && user ? user.firstName : 'User' %>!
-                        </small>
-                    <% } %>
+                <div class="col-lg-4 mb-4">
+                    <h5 class="mb-3">
+                        <i class="bi bi-mortarboard-fill me-2"></i>
+                        School Events System
+                    </h5>
+                    <p class="text-muted">
+                        Streamlining school event management for administrators, teachers, and parents.
+                        Making school life more organized and connected.
+                    </p>
                 </div>
-                <div class="col-md-4">
-                    <h6>Quick Links</h6>
+                <div class="col-lg-4 mb-4">
+                    <h6 class="mb-3">Quick Links</h6>
                     <ul class="list-unstyled">
-                        <li><a href="/" class="text-light text-decoration-none">
-                            <i class="bi bi-house me-1"></i>Home
+                        <li><a href="/events" class="text-muted text-decoration-none">
+                            <i class="bi bi-calendar-event me-2"></i>View Events
                         </a></li>
-                        <li><a href="/events" class="text-light text-decoration-none">
-                            <i class="bi bi-calendar-event me-1"></i>Events
+                        <li><a href="/auth/register" class="text-muted text-decoration-none">
+                            <i class="bi bi-person-plus me-2"></i>Parent Registration
                         </a></li>
-                        <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
-                            <li><a href="/dashboard" class="text-light text-decoration-none">
-                                <i class="bi bi-speedometer2 me-1"></i>Dashboard
-                            </a></li>
-                        <% } else { %>
-                            <li><a href="/auth/login" class="text-light text-decoration-none">
-                                <i class="bi bi-box-arrow-in-right me-1"></i>Login
-                            </a></li>
-                            <li><a href="/auth/register" class="text-light text-decoration-none">
-                                <i class="bi bi-person-plus me-1"></i>Register
-                            </a></li>
-                        <% } %>
+                        <li><a href="/parents/feedback" class="text-muted text-decoration-none">
+                            <i class="bi bi-chat-square-text me-2"></i>Send Feedback
+                        </a></li>
                     </ul>
                 </div>
-                <div class="col-md-4 text-md-end">
-                    <h6>Contact & Support</h6>
-                    <p class="mb-1">
-                        <i class="bi bi-envelope me-1"></i>
-                        <a href="mailto:support@schoolevents.com" class="text-light text-decoration-none">
-                            support@schoolevents.com
-                        </a>
+                <div class="col-lg-4 mb-4">
+                    <h6 class="mb-3">Contact Information</h6>
+                    <ul class="list-unstyled text-muted">
+                        <li><i class="bi bi-envelope me-2"></i>admin@school.com</li>
+                        <li><i class="bi bi-telephone me-2"></i>+1 (555) 123-4567</li>
+                        <li><i class="bi bi-geo-alt me-2"></i>123 School Street, City, State</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="text-muted mb-0">
+                        &copy; <%= new Date().getFullYear() %> School Events Management System. All rights reserved.
                     </p>
-                    <p class="mb-1">
-                        <i class="bi bi-telephone me-1"></i>
-                        <a href="tel:+255626776318" class="text-light text-decoration-none">
-                            +255 626 776 318
-                        </a>
-                    </p>
-                    <p class="mb-0">&copy; 2025 School Events. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small class="text-muted">
+                        Built with ❤️ for better school management
+                    </small>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <!-- AOS Animation JS -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Custom JS -->
-    <script src="/js/main.js"></script>
-    
     <script>
-        // Initialize AOS animations
+        // Initialize AOS
         AOS.init({
             duration: 800,
             easing: 'ease-in-out',
             once: true
         });
 
-        // Update notification count for parents
-        <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated && typeof user !== 'undefined' && user && user.role === 'parent') { %>
-        function updateNotificationCount() {
-            fetch('/parents/notifications/unread-count')
+        // Handle notifications for parents
+        <% if (typeof user !== 'undefined' && user && user.role === 'parent') { %>
+        // Check for unread notifications
+        function updateNotificationBadge() {
+            fetch('/parents/api/notification-count')
                 .then(response => response.json())
                 .then(data => {
-                    const badge = document.getElementById('notificationCount');
-                    if (data.count > 0) {
-                        badge.textContent = data.count;
-                        badge.style.display = 'inline';
+                    if (data.success && data.count > 0) {
+                        document.getElementById('notificationBadge').textContent = data.count;
+                        document.getElementById('notificationBadge').style.display = 'block';
                     } else {
-                        badge.style.display = 'none';
+                        document.getElementById('notificationBadge').style.display = 'none';
                     }
                 })
                 .catch(error => console.error('Error fetching notification count:', error));
         }
 
-        // Update notification count every 30 seconds
-        updateNotificationCount();
-        setInterval(updateNotificationCount, 30000);
+        // Update notification badge on page load
+        updateNotificationBadge();
+
+        // Update notification badge every 30 seconds
+        setInterval(updateNotificationBadge, 30000);
         <% } %>
 
-        // Add active class to current navigation item
+        // Show success/error messages using SweetAlert2
+        <% if (typeof success !== 'undefined' && success) { %>
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: '<%= success %>',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+        <% } %>
+
+        <% if (typeof error !== 'undefined' && error) { %>
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: '<%= error %>',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 5000,
+            timerProgressBar: true
+        });
+        <% } %>
+
+        // Loading button states
         document.addEventListener('DOMContentLoaded', function() {
-            const currentPath = window.location.pathname;
-            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
-            
-            navLinks.forEach(link => {
-                if (link.getAttribute('href') === currentPath) {
-                    link.classList.add('active');
-                }
+            // Add loading state to forms
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        const originalText = submitBtn.innerHTML;
+                        submitBtn.innerHTML = '<span class="loading-spinner me-2"></span>Loading...';
+                        
+                        // Re-enable after 5 seconds as fallback
+                        setTimeout(() => {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalText;
+                        }, 5000);
+                    }
+                });
+            });
+
+            // Add hover effects to cards
+            document.querySelectorAll('.card, .dashboard-card, .event-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Add click ripple effect to buttons
+            document.querySelectorAll('.btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    let ripple = document.createElement('span');
+                    let rect = this.getBoundingClientRect();
+                    let size = Math.max(rect.width, rect.height);
+                    let x = e.clientX - rect.left - size / 2;
+                    let y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.width = ripple.style.height = size + 'px';
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+                    ripple.classList.add('ripple');
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
             });
         });
+
+        // Utility function for confirming actions
+        function confirmAction(message, callback) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: message,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#6366f1',
+                cancelButtonColor: '#ef4444',
+                confirmButtonText: 'Yes, proceed!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    callback();
+                }
+            });
+        }
     </script>
 </body>
-</html> 
+</html>

@@ -1,0 +1,268 @@
+<%- include('../partials/header') %>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <%- include('../partials/sidebar') %>
+
+        <!-- Main Content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-bar-chart"></i>
+                    Reports & Analytics
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-outline-primary">
+                            <i class="bi bi-download"></i>
+                            Export Reports
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">Coming Soon</h4>
+                                    <p class="card-text">Total Events</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-calendar-event display-4 opacity-75"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">Coming Soon</h4>
+                                    <p class="card-text">Total Registrations</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-people display-4 opacity-75"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">Coming Soon</h4>
+                                    <p class="card-text">Revenue</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-currency-dollar display-4 opacity-75"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">Coming Soon</h4>
+                                    <p class="card-text">Pending Payments</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-clock display-4 opacity-75"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Categories -->
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-calendar-check text-primary"></i>
+                                Event Reports
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text text-muted">
+                                Generate comprehensive reports about events, registrations, and attendance.
+                            </p>
+                            <div class="list-group list-group-flush">
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    Event Registration Summary
+                                    <span class="badge bg-secondary">Coming Soon</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    Attendance Reports
+                                    <span class="badge bg-secondary">Coming Soon</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    Popular Events Analysis
+                                    <span class="badge bg-secondary">Coming Soon</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-cash-stack text-success"></i>
+                                Financial Reports
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text text-muted">
+                                Track payments, revenue, and financial performance metrics.
+                            </p>
+                            <div class="list-group list-group-flush">
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    Revenue Summary
+                                    <span class="badge bg-secondary">Coming Soon</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    Payment Status Report
+                                    <span class="badge bg-secondary">Coming Soon</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    Outstanding Payments
+                                    <span class="badge bg-secondary">Coming Soon</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-people text-info"></i>
+                                User Reports
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text text-muted">
+                                Analyze user engagement, registration patterns, and demographics.
+                            </p>
+                            <div class="list-group list-group-flush">
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    User Activity Report
+                                    <span class="badge bg-secondary">Coming Soon</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    Parent Engagement
+                                    <span class="badge bg-secondary">Coming Soon</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    Teacher Performance
+                                    <span class="badge bg-secondary">Coming Soon</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-mortarboard text-warning"></i>
+                                Academic Reports
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text text-muted">
+                                Student performance, class statistics, and academic insights.
+                            </p>
+                            <div class="list-group list-group-flush">
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    Class Performance
+                                    <span class="badge bg-secondary">Coming Soon</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    Student Participation
+                                    <span class="badge bg-secondary">Coming Soon</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    Grade-wise Analysis
+                                    <span class="badge bg-secondary">Coming Soon</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Placeholder for Future Charts -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-graph-up text-primary"></i>
+                                Analytics Dashboard
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center py-5">
+                                <i class="bi bi-bar-chart display-1 text-muted opacity-50"></i>
+                                <h4 class="mt-3 text-muted">Advanced Analytics Coming Soon</h4>
+                                <p class="text-muted">
+                                    Interactive charts, graphs, and detailed analytics will be available in future updates.
+                                    This will include event trends, user engagement metrics, financial insights, and more.
+                                </p>
+                                <div class="row mt-4">
+                                    <div class="col-md-4">
+                                        <div class="card bg-light">
+                                            <div class="card-body text-center">
+                                                <i class="bi bi-graph-up-arrow display-4 text-primary"></i>
+                                                <h6 class="mt-2">Trend Analysis</h6>
+                                                <p class="small text-muted">Track performance over time</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card bg-light">
+                                            <div class="card-body text-center">
+                                                <i class="bi bi-pie-chart display-4 text-success"></i>
+                                                <h6 class="mt-2">Data Visualization</h6>
+                                                <p class="small text-muted">Interactive charts and graphs</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card bg-light">
+                                            <div class="card-body text-center">
+                                                <i class="bi bi-download display-4 text-info"></i>
+                                                <h6 class="mt-2">Export Options</h6>
+                                                <p class="small text-muted">PDF, Excel, and CSV formats</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

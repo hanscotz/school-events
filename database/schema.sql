@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- =====================================================
--- STUDENTS TABLE - Enhanced with more details
+-- STUDENTS TABLE - Enhanced with more details and teacher relationships
 -- =====================================================
 CREATE TABLE IF NOT EXISTS students (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -39,13 +39,15 @@ CREATE TABLE IF NOT EXISTS students (
     last_name VARCHAR(100) NOT NULL,
     grade VARCHAR(20) NOT NULL CHECK (grade IN ('FORM I', 'FORM II', 'FORM III', 'FORM IV', 'FORM V', 'FORM VI')),
     section VARCHAR(10),
-    parent_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    class_teacher_id UUID REFERENCES users(id), -- Teacher who created/manages this student
+    parent_id UUID REFERENCES users(id) ON DELETE SET NULL, -- Parent assigned by admin
     date_of_birth DATE NOT NULL,
     gender VARCHAR(10) CHECK (gender IN ('Male', 'Female', 'Other')),
     address TEXT,
     emergency_contact VARCHAR(20),
     medical_info TEXT,
     is_active BOOLEAN DEFAULT TRUE,
+    parent_approved BOOLEAN DEFAULT FALSE, -- Whether parent has been approved by admin
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -81,14 +83,17 @@ CREATE TABLE IF NOT EXISTS events (
 );
 
 -- =====================================================
--- EVENT REGISTRATIONS TABLE - Enhanced with payment tracking
+-- EVENT REGISTRATIONS TABLE - Enhanced with teacher registration workflow
 -- =====================================================
 CREATE TABLE IF NOT EXISTS event_registrations (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     event_id UUID REFERENCES events(id) ON DELETE CASCADE,
     student_id UUID REFERENCES students(id) ON DELETE CASCADE,
+    teacher_id UUID REFERENCES users(id) ON DELETE CASCADE, -- Teacher who registered the student
     parent_id UUID REFERENCES users(id) ON DELETE CASCADE,
     registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    parent_notified BOOLEAN DEFAULT FALSE, -- Whether parent has been notified
+    parent_notification_date TIMESTAMP,
     payment_status VARCHAR(20) DEFAULT 'pending' CHECK (payment_status IN ('pending', 'paid', 'cancelled', 'refunded')),
     payment_amount DECIMAL(10,2),
     payment_method VARCHAR(50),
@@ -188,6 +193,58 @@ CREATE TABLE IF NOT EXISTS event_categories (
 );
 
 -- =====================================================
+-- CLASSES TABLE - For class management by teachers
+-- =====================================================
+CREATE TABLE IF NOT EXISTS classes (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(100) NOT NULL, -- e.g., "Form 1A", "Form 2B"
+    grade VARCHAR(20) NOT NULL CHECK (grade IN ('FORM I', 'FORM II', 'FORM III', 'FORM IV', 'FORM V', 'FORM VI')),
+    section VARCHAR(10) NOT NULL,
+    class_teacher_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    academic_year VARCHAR(20) NOT NULL, -- e.g., "2024-2025"
+    max_students INTEGER DEFAULT 40,
+    current_students INTEGER DEFAULT 0,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(grade, section, academic_year)
+);
+
+-- =====================================================
+-- PARENT REGISTRATION REQUESTS TABLE - For parent approval workflow
+-- =====================================================
+CREATE TABLE IF NOT EXISTS parent_registration_requests (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    phone VARCHAR(20),
+    request_message TEXT,
+    student_names TEXT[], -- Array of student names to be linked
+    status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+    reviewed_by UUID REFERENCES users(id),
+    reviewed_at TIMESTAMP,
+    rejection_reason TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =====================================================
+-- SMS LOGS TABLE - For SMS notification tracking
+-- =====================================================
+CREATE TABLE IF NOT EXISTS sms_logs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    recipient_phone VARCHAR(20) NOT NULL,
+    recipient_name VARCHAR(255),
+    message TEXT NOT NULL,
+    template_used VARCHAR(100),
+    status VARCHAR(20) DEFAULT 'sent' CHECK (status IN ('sent', 'failed', 'delivered')),
+    error_message TEXT,
+    cost DECIMAL(10,4), -- Cost of SMS
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    delivered_at TIMESTAMP
+);
+
+-- =====================================================
 -- AUDIT LOGS TABLE - New table for security auditing
 -- =====================================================
 CREATE TABLE IF NOT EXISTS audit_logs (
@@ -268,6 +325,26 @@ CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(session_token);
 CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
 
+-- Classes table indexes
+CREATE INDEX IF NOT EXISTS idx_classes_teacher_id ON classes(class_teacher_id);
+CREATE INDEX IF NOT EXISTS idx_classes_grade ON classes(grade);
+CREATE INDEX IF NOT EXISTS idx_classes_academic_year ON classes(academic_year);
+
+-- Parent registration requests indexes
+CREATE INDEX IF NOT EXISTS idx_parent_requests_status ON parent_registration_requests(status);
+CREATE INDEX IF NOT EXISTS idx_parent_requests_email ON parent_registration_requests(email);
+
+-- SMS logs indexes
+CREATE INDEX IF NOT EXISTS idx_sms_logs_recipient ON sms_logs(recipient_phone);
+CREATE INDEX IF NOT EXISTS idx_sms_logs_status ON sms_logs(status);
+CREATE INDEX IF NOT EXISTS idx_sms_logs_sent_at ON sms_logs(sent_at);
+
+-- Additional indexes for new fields
+CREATE INDEX IF NOT EXISTS idx_students_class_teacher ON students(class_teacher_id);
+CREATE INDEX IF NOT EXISTS idx_students_parent_approved ON students(parent_approved);
+CREATE INDEX IF NOT EXISTS idx_registrations_teacher_id ON event_registrations(teacher_id);
+CREATE INDEX IF NOT EXISTS idx_registrations_parent_notified ON event_registrations(parent_notified);
+
 -- =====================================================
 -- TRIGGERS FOR UPDATED_AT TIMESTAMPS
 -- =====================================================
@@ -288,6 +365,7 @@ CREATE TRIGGER update_events_updated_at BEFORE UPDATE ON events FOR EACH ROW EXE
 CREATE TRIGGER update_event_registrations_updated_at BEFORE UPDATE ON event_registrations FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_feedback_updated_at BEFORE UPDATE ON feedback FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_payments_updated_at BEFORE UPDATE ON payments FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_classes_updated_at BEFORE UPDATE ON classes FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- =====================================================
 -- TRIGGERS FOR AUDIT LOGGING
@@ -319,6 +397,8 @@ CREATE TRIGGER audit_users_trigger AFTER INSERT OR UPDATE OR DELETE ON users FOR
 CREATE TRIGGER audit_events_trigger AFTER INSERT OR UPDATE OR DELETE ON events FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
 CREATE TRIGGER audit_registrations_trigger AFTER INSERT OR UPDATE OR DELETE ON event_registrations FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
 CREATE TRIGGER audit_payments_trigger AFTER INSERT OR UPDATE OR DELETE ON payments FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
+CREATE TRIGGER audit_students_trigger AFTER INSERT OR UPDATE OR DELETE ON students FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
+CREATE TRIGGER audit_classes_trigger AFTER INSERT OR UPDATE OR DELETE ON classes FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
 
 -- =====================================================
 -- VIEWS FOR COMMON QUERIES
@@ -342,14 +422,55 @@ SELECT
     u.first_name,
     u.last_name,
     u.role,
-    COUNT(DISTINCT s.id) as student_count,
+    CASE 
+        WHEN u.role = 'parent' THEN COUNT(DISTINCT s.id) 
+        WHEN u.role = 'teacher' THEN COUNT(DISTINCT st.id)
+        ELSE 0 
+    END as student_count,
     COUNT(DISTINCT er.id) as registration_count,
-    COUNT(DISTINCT n.id) as unread_notifications
+    COUNT(DISTINCT n.id) as unread_notifications,
+    CASE 
+        WHEN u.role = 'teacher' THEN COUNT(DISTINCT c.id)
+        ELSE 0
+    END as class_count
 FROM users u
-LEFT JOIN students s ON u.id = s.parent_id
-LEFT JOIN event_registrations er ON u.id = er.parent_id
+LEFT JOIN students s ON u.id = s.parent_id AND u.role = 'parent'
+LEFT JOIN students st ON u.id = st.class_teacher_id AND u.role = 'teacher'
+LEFT JOIN classes c ON u.id = c.class_teacher_id AND u.role = 'teacher'
+LEFT JOIN event_registrations er ON (
+    (u.role = 'parent' AND u.id = er.parent_id) OR
+    (u.role = 'teacher' AND u.id = er.teacher_id)
+)
 LEFT JOIN notifications n ON u.id = n.user_id AND n.is_read = false
 GROUP BY u.id;
+
+-- View for teacher's class overview
+CREATE OR REPLACE VIEW teacher_class_view AS
+SELECT 
+    c.id as class_id,
+    c.name as class_name,
+    c.grade,
+    c.section,
+    c.academic_year,
+    u.first_name || ' ' || u.last_name as teacher_name,
+    c.current_students,
+    c.max_students,
+    COUNT(s.id) as actual_student_count
+FROM classes c
+LEFT JOIN users u ON c.class_teacher_id = u.id
+LEFT JOIN students s ON c.grade = s.grade AND c.section = s.section AND s.is_active = true
+WHERE c.is_active = true
+GROUP BY c.id, u.first_name, u.last_name;
+
+-- View for parent approval queue
+CREATE OR REPLACE VIEW parent_approval_queue AS
+SELECT 
+    prr.*,
+    ur.first_name || ' ' || ur.last_name as reviewed_by_name
+FROM parent_registration_requests prr
+LEFT JOIN users ur ON prr.reviewed_by = ur.id
+WHERE prr.status = 'pending'
+ORDER BY prr.created_at;
 
 -- =====================================================
 -- INITIAL DATA INSERTION

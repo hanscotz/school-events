@@ -1,249 +1,79 @@
 const express = require('express');
 const moment = require('moment');
 const db = require('../database/connection');
-const emailService = require('../services/emailService');
-const { requireAuth, requireAdmin } = require('./auth');
+const notificationService = require('../services/notificationService');
+const { requireAuth, requireAdmin, requireTeacher, requireAdminOrTeacher } = require('./auth');
 const router = express.Router();
 
-// Get all events
+// Get all events (public view)
 router.get('/', async (req, res) => {
     try {
         const eventsResult = await db.query(`
             SELECT e.*, 
                    COUNT(er.id) as registered_count,
-                   u.first_name as created_by_name
+                   u.first_name || ' ' || u.last_name as created_by_name,
+                   ec.name as category_name,
+                   ec.color as category_color,
+                   ec.icon as category_icon
             FROM events e
             LEFT JOIN event_registrations er ON e.id = er.event_id
             LEFT JOIN users u ON e.created_by = u.id
+            LEFT JOIN event_categories ec ON e.category = ec.name
             WHERE e.status = 'active'
-            GROUP BY e.id, u.first_name
+            GROUP BY e.id, u.first_name, u.last_name, ec.name, ec.color, ec.icon
             ORDER BY e.start_date ASC
         `);
 
         const events = eventsResult.rows.map(event => ({
             ...event,
-            start_date: moment(event.start_date).format('YYYY-MM-DD HH:mm'),
-            end_date: moment(event.end_date).format('YYYY-MM-DD HH:mm'),
-            is_full: event.current_participants >= event.max_participants
+            start_date_formatted: moment(event.start_date).format('MMMM DD, YYYY'),
+            start_time_formatted: moment(event.start_date).format('HH:mm'),
+            end_date_formatted: moment(event.end_date).format('MMMM DD, YYYY'),
+            end_time_formatted: moment(event.end_date).format('HH:mm'),
+            registration_deadline_formatted: event.registration_deadline ? 
+                moment(event.registration_deadline).format('MMMM DD, YYYY') : null,
+            is_full: event.max_participants && event.registered_count >= event.max_participants,
+            days_until_event: moment(event.start_date).diff(moment(), 'days'),
+            is_registration_open: !event.registration_deadline || 
+                moment().isBefore(moment(event.registration_deadline))
         }));
 
         res.render('events/index', { 
-            title: 'Events - School Events',
+            title: 'School Events',
             events,
-            user: req.session.user 
+            user: req.session.user,
+            moment
         });
 
     } catch (error) {
         console.error('Events error:', error);
         res.render('events/index', { 
-            title: 'Events - School Events',
+            title: 'School Events',
             events: [],
             error: 'Failed to load events',
-            user: req.session.user 
+            user: req.session.user,
+            moment
         });
     }
 });
 
-// Admin routes for event management
-router.get('/admin/create', requireAdmin, (req, res) => {
-    res.render('events/create', { 
-        title: 'Create Event - School Events',
-        user: req.session.user 
-    });
-});
-
-router.post('/admin/create', requireAdmin, async (req, res) => {
-    try {
-        const {
-            title,
-            description,
-            event_type,
-            location,
-            start_date,
-            end_date,
-            fee,
-            max_participants
-        } = req.body;
-
-        // Validate input
-        if (!title || !event_type || !location || !start_date || !end_date) {
-            return res.render('events/create', { 
-                title: 'Create Event - School Events',
-                error: 'Please fill in all required fields',
-                user: req.session.user 
-            });
-        }
-
-        // Create event
-        const eventResult = await db.query(`
-            INSERT INTO events (title, description, event_type, location, start_date, end_date, fee, max_participants, created_by)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-            RETURNING *
-        `, [
-            title,
-            description,
-            event_type,
-            location,
-            start_date,
-            end_date,
-            parseFloat(fee) || 0,
-            parseInt(max_participants) || null,
-            req.session.user.id
-        ]);
-
-        const event = eventResult.rows[0];
-
-        // Send notifications to all parents
-        await emailService.sendBulkEventNotification({
-            title: event.title,
-            start_date: moment(event.start_date).format('MMMM DD, YYYY at HH:mm'),
-            event_type: event.event_type,
-            fee: event.fee
-        });
-
-        res.redirect(`/events/${event.id}?success=Event created successfully`);
-
-    } catch (error) {
-        console.error('Create event error:', error);
-        res.render('events/create', { 
-            title: 'Create Event - School Events',
-            error: 'Failed to create event',
-            user: req.session.user 
-        });
-    }
-});
-
-// Edit event
-router.get('/admin/:id/edit', requireAdmin, async (req, res) => {
-    try {
-        const eventId = req.params.id;
-        const eventResult = await db.query(
-            'SELECT * FROM events WHERE id = $1',
-            [eventId]
-        );
-
-        if (eventResult.rows.length === 0) {
-            return res.status(404).render('error', { 
-                title: 'Event Not Found',
-                error: 'Event not found',
-                user: req.session.user 
-            });
-        }
-
-        const event = eventResult.rows[0];
-        event.start_date = moment(event.start_date).format('YYYY-MM-DDTHH:mm');
-        event.end_date = moment(event.end_date).format('YYYY-MM-DDTHH:mm');
-
-        res.render('events/edit', { 
-            title: 'Edit Event - School Events',
-            event,
-            user: req.session.user 
-        });
-
-    } catch (error) {
-        console.error('Edit event error:', error);
-        res.redirect('/events');
-    }
-});
-
-router.post('/admin/:id/edit', requireAdmin, async (req, res) => {
-    try {
-        const eventId = req.params.id;
-        const {
-            title,
-            description,
-            event_type,
-            location,
-            start_date,
-            end_date,
-            fee,
-            max_participants,
-            status
-        } = req.body;
-
-        await db.query(`
-            UPDATE events 
-            SET title = $1, description = $2, event_type = $3, location = $4, 
-                start_date = $5, end_date = $6, fee = $7, max_participants = $8, 
-                status = $9, updated_at = CURRENT_TIMESTAMP
-            WHERE id = $10
-        `, [
-            title,
-            description,
-            event_type,
-            location,
-            start_date,
-            end_date,
-            parseFloat(fee) || 0,
-            parseInt(max_participants) || null,
-            status,
-            eventId
-        ]);
-
-        res.redirect(`/events/${eventId}?success=Event updated successfully`);
-
-    } catch (error) {
-        console.error('Update event error:', error);
-        res.redirect(`/events/${req.params.id}/edit?error=Failed to update event`);
-    }
-});
-
-// Delete event
-router.post('/admin/:id/delete', requireAdmin, async (req, res) => {
-    try {
-        const eventId = req.params.id;
-
-        // Check if there are registrations
-        const registrationsResult = await db.query(
-            'SELECT COUNT(*) as count FROM event_registrations WHERE event_id = $1',
-            [eventId]
-        );
-
-        if (parseInt(registrationsResult.rows[0].count) > 0) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Cannot delete event with existing registrations' 
-            });
-        }
-
-        await db.query('DELETE FROM events WHERE id = $1', [eventId]);
-
-        res.json({ 
-            success: true, 
-            message: 'Event deleted successfully' 
-        });
-
-    } catch (error) {
-        console.error('Delete event error:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: 'Failed to delete event' 
-        });
-    }
-});
-
-// Get single event (add numeric validation)
+// Get single event details
 router.get('/:id', async (req, res) => {
     try {
-        const eventId = req.params.id;
-        if (!/^[0-9]+$/.test(eventId)) {
-            return res.status(400).render('error', {
-                title: 'Invalid Event ID',
-                error: 'Invalid event ID',
-                user: req.session.user
-            });
-        }
-
         const eventResult = await db.query(`
             SELECT e.*, 
-                   COUNT(er.id) as registered_count,
-                   u.first_name as created_by_name
+                   u.first_name || ' ' || u.last_name as created_by_name,
+                   ec.name as category_name,
+                   ec.color as category_color,
+                   ec.icon as category_icon,
+                   COUNT(er.id) as registered_count
             FROM events e
-            LEFT JOIN event_registrations er ON e.id = er.event_id
             LEFT JOIN users u ON e.created_by = u.id
+            LEFT JOIN event_categories ec ON e.category = ec.name
+            LEFT JOIN event_registrations er ON e.id = er.event_id
             WHERE e.id = $1
-            GROUP BY e.id, u.first_name
-        `, [eventId]);
+            GROUP BY e.id, u.first_name, u.last_name, ec.name, ec.color, ec.icon
+        `, [req.params.id]);
 
         if (eventResult.rows.length === 0) {
             return res.status(404).render('error', { 
@@ -254,29 +84,52 @@ router.get('/:id', async (req, res) => {
         }
 
         const event = eventResult.rows[0];
-        event.start_date = moment(event.start_date).format('YYYY-MM-DD HH:mm');
-        event.end_date = moment(event.end_date).format('YYYY-MM-DD HH:mm');
 
-        // Get registered students for this event
-        const registrationsResult = await db.query(`
-            SELECT er.*, s.first_name as student_first_name, s.last_name as student_last_name,
-                   u.first_name as parent_first_name, u.last_name as parent_last_name
-            FROM event_registrations er
-            JOIN students s ON er.student_id = s.id
-            JOIN users u ON er.parent_id = u.id
-            WHERE er.event_id = $1
-            ORDER BY er.registration_date DESC
-        `, [eventId]);
+        // Get registered students for this event (if user is teacher or admin)
+        let registrations = [];
+        if (req.session.user && ['teacher', 'admin'].includes(req.session.user.role)) {
+            const registrationsResult = await db.query(`
+                SELECT 
+                    er.*,
+                    s.first_name || ' ' || s.last_name as student_name,
+                    s.grade,
+                    s.section,
+                    u.first_name || ' ' || u.last_name as parent_name,
+                    u.email as parent_email,
+                    u.phone as parent_phone,
+                    t.first_name || ' ' || t.last_name as teacher_name
+                FROM event_registrations er
+                JOIN students s ON er.student_id = s.id
+                JOIN users u ON er.parent_id = u.id
+                JOIN users t ON er.teacher_id = t.id
+                WHERE er.event_id = $1
+                ORDER BY er.registration_date DESC
+            `, [req.params.id]);
+            
+            registrations = registrationsResult.rows;
+        }
 
         res.render('events/show', { 
             title: `${event.title} - School Events`,
-            event,
-            registrations: registrationsResult.rows,
-            user: req.session.user 
+            event: {
+                ...event,
+                start_date_formatted: moment(event.start_date).format('MMMM DD, YYYY'),
+                start_time_formatted: moment(event.start_date).format('HH:mm'),
+                end_date_formatted: moment(event.end_date).format('MMMM DD, YYYY'),
+                end_time_formatted: moment(event.end_date).format('HH:mm'),
+                registration_deadline_formatted: event.registration_deadline ? 
+                    moment(event.registration_deadline).format('MMMM DD, YYYY') : null,
+                is_full: event.max_participants && event.registered_count >= event.max_participants,
+                is_registration_open: !event.registration_deadline || 
+                    moment().isBefore(moment(event.registration_deadline))
+            },
+            registrations,
+            user: req.session.user,
+            moment
         });
 
     } catch (error) {
-        console.error('Event detail error:', error);
+        console.error('Event details error:', error);
         res.status(500).render('error', { 
             title: 'Error',
             error: 'Failed to load event details',
@@ -285,225 +138,434 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// Register for event (POST)
-router.post('/:id/register', requireAuth, async (req, res) => {
+// ADMIN ONLY: Create event page
+router.get('/create', requireAdmin, async (req, res) => {
+    try {
+        // Get event categories
+        const categoriesResult = await db.query(`
+            SELECT * FROM event_categories 
+            WHERE is_active = true 
+            ORDER BY name
+        `);
+
+        res.render('events/create', { 
+            title: 'Create Event - School Events',
+            categories: categoriesResult.rows,
+            user: req.session.user 
+        });
+
+    } catch (error) {
+        console.error('Create event page error:', error);
+        res.render('events/create', { 
+            title: 'Create Event - School Events',
+            categories: [],
+            error: 'Failed to load page',
+            user: req.session.user 
+        });
+    }
+});
+
+// ADMIN ONLY: Create event POST
+router.post('/create', requireAdmin, async (req, res) => {
+    try {
+        const {
+            title,
+            description,
+            event_type,
+            category,
+            location,
+            start_date,
+            end_date,
+            registration_deadline,
+            fee,
+            max_participants,
+            min_age,
+            max_age
+        } = req.body;
+
+        // Validate input
+        if (!title || !event_type || !location || !start_date || !end_date) {
+            const categoriesResult = await db.query(`
+                SELECT * FROM event_categories 
+                WHERE is_active = true 
+                ORDER BY name
+            `);
+
+            return res.render('events/create', { 
+                title: 'Create Event - School Events',
+                categories: categoriesResult.rows,
+                error: 'Please fill in all required fields',
+                formData: req.body,
+                user: req.session.user 
+            });
+        }
+
+        // Validate dates
+        if (moment(start_date).isAfter(moment(end_date))) {
+            const categoriesResult = await db.query(`
+                SELECT * FROM event_categories 
+                WHERE is_active = true 
+                ORDER BY name
+            `);
+
+            return res.render('events/create', { 
+                title: 'Create Event - School Events',
+                categories: categoriesResult.rows,
+                error: 'Start date must be before end date',
+                formData: req.body,
+                user: req.session.user 
+            });
+        }
+
+        // Create event
+        const eventResult = await db.query(`
+            INSERT INTO events (
+                title, description, event_type, category, location, 
+                start_date, end_date, registration_deadline, fee, 
+                max_participants, min_age, max_age, created_by, status
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, 'active')
+            RETURNING *
+        `, [
+            title,
+            description,
+            event_type,
+            category,
+            location,
+            start_date,
+            end_date,
+            registration_deadline || null,
+            parseFloat(fee) || 0,
+            parseInt(max_participants) || null,
+            parseInt(min_age) || null,
+            parseInt(max_age) || null,
+            req.session.user.id
+        ]);
+
+        const event = eventResult.rows[0];
+
+        // Create notification for all users about new event
+        const allUsersResult = await db.query(`
+            SELECT id FROM users 
+            WHERE role IN ('parent', 'teacher') 
+            AND is_active = true
+        `);
+
+        for (const user of allUsersResult.rows) {
+            await notificationService.createInAppNotification({
+                userId: user.id,
+                title: `New Event: ${event.title}`,
+                message: `A new ${event.event_type} event has been created. Check it out!`,
+                type: 'info',
+                category: 'event',
+                actionUrl: `/events/${event.id}`
+            });
+        }
+
+        res.redirect(`/events/${event.id}?success=Event created successfully`);
+
+    } catch (error) {
+        console.error('Create event error:', error);
+        
+        const categoriesResult = await db.query(`
+            SELECT * FROM event_categories 
+            WHERE is_active = true 
+            ORDER BY name
+        `);
+
+        res.render('events/create', { 
+            title: 'Create Event - School Events',
+            categories: categoriesResult.rows,
+            error: 'An error occurred while creating the event',
+            formData: req.body,
+            user: req.session.user 
+        });
+    }
+});
+
+// ADMIN ONLY: Edit event page
+router.get('/:id/edit', requireAdmin, async (req, res) => {
+    try {
+        const eventResult = await db.query(`
+            SELECT * FROM events WHERE id = $1
+        `, [req.params.id]);
+
+        if (eventResult.rows.length === 0) {
+            return res.status(404).render('error', { 
+                title: 'Event Not Found',
+                error: 'Event not found',
+                user: req.session.user 
+            });
+        }
+
+        const categoriesResult = await db.query(`
+            SELECT * FROM event_categories 
+            WHERE is_active = true 
+            ORDER BY name
+        `);
+
+        const event = eventResult.rows[0];
+
+        res.render('events/edit', { 
+            title: `Edit ${event.title} - School Events`,
+            event: {
+                ...event,
+                start_date: moment(event.start_date).format('YYYY-MM-DDTHH:mm'),
+                end_date: moment(event.end_date).format('YYYY-MM-DDTHH:mm'),
+                registration_deadline: event.registration_deadline ? 
+                    moment(event.registration_deadline).format('YYYY-MM-DDTHH:mm') : ''
+            },
+            categories: categoriesResult.rows,
+            user: req.session.user 
+        });
+
+    } catch (error) {
+        console.error('Edit event page error:', error);
+        res.status(500).render('error', { 
+            title: 'Error',
+            error: 'Failed to load event for editing',
+            user: req.session.user 
+        });
+    }
+});
+
+// ADMIN ONLY: Update event POST
+router.post('/:id/edit', requireAdmin, async (req, res) => {
     try {
         const eventId = req.params.id;
+        const {
+            title,
+            description,
+            event_type,
+            category,
+            location,
+            start_date,
+            end_date,
+            registration_deadline,
+            fee,
+            max_participants,
+            min_age,
+            max_age,
+            status
+        } = req.body;
+
+        // Validate input
+        if (!title || !event_type || !location || !start_date || !end_date) {
+            return res.redirect(`/events/${eventId}/edit?error=Please fill in all required fields`);
+        }
+
+        // Update event
+        await db.query(`
+            UPDATE events 
+            SET 
+                title = $1, description = $2, event_type = $3, category = $4,
+                location = $5, start_date = $6, end_date = $7, 
+                registration_deadline = $8, fee = $9, max_participants = $10,
+                min_age = $11, max_age = $12, status = $13, updated_at = CURRENT_TIMESTAMP
+            WHERE id = $14
+        `, [
+            title, description, event_type, category, location,
+            start_date, end_date, registration_deadline || null,
+            parseFloat(fee) || 0, parseInt(max_participants) || null,
+            parseInt(min_age) || null, parseInt(max_age) || null,
+            status, eventId
+        ]);
+
+        res.redirect(`/events/${eventId}?success=Event updated successfully`);
+
+    } catch (error) {
+        console.error('Update event error:', error);
+        res.redirect(`/events/${req.params.id}/edit?error=An error occurred while updating the event`);
+    }
+});
+
+// ADMIN ONLY: Delete event
+router.post('/:id/delete', requireAdmin, async (req, res) => {
+    try {
+        // Check if there are any registrations
+        const registrationsResult = await db.query(`
+            SELECT COUNT(*) as count FROM event_registrations WHERE event_id = $1
+        `, [req.params.id]);
+
+        const registrationCount = parseInt(registrationsResult.rows[0].count);
+
+        if (registrationCount > 0) {
+            return res.redirect(`/events/${req.params.id}?error=Cannot delete event with existing registrations`);
+        }
+
+        // Delete event
+        await db.query(`
+            DELETE FROM events WHERE id = $1
+        `, [req.params.id]);
+
+        res.redirect('/events?success=Event deleted successfully');
+
+    } catch (error) {
+        console.error('Delete event error:', error);
+        res.redirect(`/events/${req.params.id}?error=An error occurred while deleting the event`);
+    }
+});
+
+// TEACHER ONLY: Register student for event
+router.post('/:eventId/register-student', requireTeacher, async (req, res) => {
+    try {
         const { studentId } = req.body;
-        const parentId = req.session.user.id;
+        const eventId = req.params.eventId;
+        const teacherId = req.session.user.id;
 
-        // Validate student belongs to parent
-        const studentResult = await db.query(
-            'SELECT * FROM students WHERE id = $1 AND parent_id = $2',
-            [studentId, parentId]
-        );
-
-        if (studentResult.rows.length === 0) {
+        // Validate input
+        if (!studentId) {
             return res.status(400).json({ 
                 success: false, 
-                error: 'Invalid student selected' 
+                message: 'Student ID is required' 
             });
         }
 
-        // Check if already registered
-        const existingRegistration = await db.query(
-            'SELECT * FROM event_registrations WHERE event_id = $1 AND student_id = $2',
-            [eventId, studentId]
-        );
-
-        if (existingRegistration.rows.length > 0) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Student is already registered for this event' 
-            });
-        }
-
-        // Get event details
-        const eventResult = await db.query(
-            'SELECT * FROM events WHERE id = $1',
-            [eventId]
-        );
+        // Check if event exists and is active
+        const eventResult = await db.query(`
+            SELECT * FROM events 
+            WHERE id = $1 AND status = 'active'
+        `, [eventId]);
 
         if (eventResult.rows.length === 0) {
             return res.status(404).json({ 
                 success: false, 
-                error: 'Event not found' 
+                message: 'Event not found or inactive' 
             });
         }
 
         const event = eventResult.rows[0];
 
-        // Check if event is full
-        if (event.current_participants >= event.max_participants) {
+        // Check if registration deadline has passed
+        if (event.registration_deadline && moment().isAfter(moment(event.registration_deadline))) {
             return res.status(400).json({ 
                 success: false, 
-                error: 'Event is full' 
+                message: 'Registration deadline has passed' 
             });
         }
 
-        // Create registration
-        const registrationResult = await db.query(`
-            INSERT INTO event_registrations (event_id, student_id, parent_id, payment_amount)
-            VALUES ($1, $2, $3, $4)
-            RETURNING *
-        `, [eventId, studentId, parentId, event.fee]);
+        // Check if event is full
+        const registrationCountResult = await db.query(`
+            SELECT COUNT(*) as count FROM event_registrations WHERE event_id = $1
+        `, [eventId]);
 
-        // Update event participant count
-        await db.query(
-            'UPDATE events SET current_participants = current_participants + 1 WHERE id = $1',
-            [eventId]
-        );
-
-        // Send email notification
-        const student = studentResult.rows[0];
-        const parentName = `${req.session.user.firstName} ${req.session.user.lastName}`;
-        const studentName = `${student.first_name} ${student.last_name}`;
-        
-        await emailService.sendEventRegistrationEmail(
-            req.session.user.email,
-            parentName,
-            studentName,
-            event.title,
-            moment(event.start_date).format('MMMM DD, YYYY at HH:mm'),
-            event.fee
-        );
-
-        // Create notification
-        await db.query(`
-            INSERT INTO notifications (user_id, title, message, type)
-            VALUES ($1, $2, $3, $4)
-        `, [
-            parentId,
-            'Event Registration Successful',
-            `Your child ${studentName} has been registered for ${event.title}`,
-            'success'
-        ]);
-
-        res.json({ 
-            success: true, 
-            message: 'Registration successful! Check your email for confirmation.' 
-        });
-
-    } catch (error) {
-        console.error('Registration error:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: 'Registration failed. Please try again.' 
-        });
-    }
-});
-
-// Get parent's students for event registration (AJAX endpoint)
-router.get('/:id/registration-students', requireAuth, async (req, res) => {
-    try {
-        const eventId = req.params.id;
-        const parentId = req.session.user.id;
-
-        console.log('Fetching students for parent:', parentId, 'event:', eventId);
-
-        // Get parent's students
-        const studentsResult = await db.query(`
-            SELECT s.id, s.first_name, s.last_name, s.grade, s.section, s.date_of_birth
-            FROM students s
-            WHERE s.parent_id = $1
-            ORDER BY s.first_name, s.last_name
-        `, [parentId]);
-
-        console.log('Students found:', studentsResult.rows.length);
-
-        // Check which students are already registered for this event
-        const registeredStudentsResult = await db.query(`
-            SELECT er.student_id
-            FROM event_registrations er
-            WHERE er.event_id = $1 AND er.parent_id = $2
-        `, [eventId, parentId]);
-
-        const registeredStudentIds = registeredStudentsResult.rows.map(row => row.student_id);
-        console.log('Already registered student IDs:', registeredStudentIds);
-
-        // Add registration status to each student
-        const students = studentsResult.rows.map(student => ({
-            ...student,
-            is_registered: registeredStudentIds.includes(student.id),
-            full_name: `${student.first_name} ${student.last_name}`
-        }));
-
-        console.log('Final students data:', students);
-
-        res.json({
-            success: true,
-            students: students
-        });
-
-    } catch (error) {
-        console.error('Get registration students error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to load students'
-        });
-    }
-});
-
-// Cancel registration
-router.post('/:id/cancel', requireAuth, async (req, res) => {
-    try {
-        const eventId = req.params.id;
-        const { studentId } = req.body;
-        const parentId = req.session.user.id;
-
-        // Find registration
-        const registrationResult = await db.query(`
-            SELECT er.*, e.title, s.first_name as student_first_name, s.last_name as student_last_name
-            FROM event_registrations er
-            JOIN events e ON er.event_id = e.id
-            JOIN students s ON er.student_id = s.id
-            WHERE er.event_id = $1 AND er.student_id = $2 AND er.parent_id = $3
-        `, [eventId, studentId, parentId]);
-
-        if (registrationResult.rows.length === 0) {
-            return res.status(404).json({ 
+        const currentRegistrations = parseInt(registrationCountResult.rows[0].count);
+        if (event.max_participants && currentRegistrations >= event.max_participants) {
+            return res.status(400).json({ 
                 success: false, 
-                error: 'Registration not found' 
+                message: 'Event is full' 
             });
         }
 
-        const registration = registrationResult.rows[0];
+        // Get student and parent details
+        const studentResult = await db.query(`
+            SELECT 
+                s.*,
+                u.id as parent_id,
+                u.email as parent_email,
+                u.phone as parent_phone,
+                u.first_name || ' ' || u.last_name as parent_name
+            FROM students s
+            LEFT JOIN users u ON s.parent_id = u.id
+            WHERE s.id = $1 AND s.class_teacher_id = $2 AND s.is_active = true
+        `, [studentId, teacherId]);
 
-        // Delete registration
-        await db.query(
-            'DELETE FROM event_registrations WHERE id = $1',
-            [registration.id]
-        );
+        if (studentResult.rows.length === 0) {
+            return res.status(403).json({ 
+                success: false, 
+                message: 'You can only register students from your own class' 
+            });
+        }
 
-        // Update event participant count
-        await db.query(
-            'UPDATE events SET current_participants = current_participants - 1 WHERE id = $1',
-            [eventId]
-        );
+        const student = studentResult.rows[0];
 
-        // Create notification
-        await db.query(`
-            INSERT INTO notifications (user_id, title, message, type)
-            VALUES ($1, $2, $3, $4)
+        // Check if student is already registered
+        const existingRegistration = await db.query(`
+            SELECT id FROM event_registrations 
+            WHERE event_id = $1 AND student_id = $2
+        `, [eventId, studentId]);
+
+        if (existingRegistration.rows.length > 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Student is already registered for this event' 
+            });
+        }
+
+        // Register student for event
+        const registrationResult = await db.query(`
+            INSERT INTO event_registrations (
+                event_id, student_id, teacher_id, parent_id, 
+                payment_amount, registration_date
+            )
+            VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
+            RETURNING *
         `, [
-            parentId,
-            'Registration Cancelled',
-            `Registration for ${registration.title} has been cancelled`,
-            'info'
+            eventId, studentId, teacherId, student.parent_id, event.fee
         ]);
+
+        // Send notification to parent if parent exists
+        if (student.parent_id) {
+            const paymentDueDate = event.registration_deadline ? 
+                moment(event.registration_deadline).format('MMMM DD, YYYY') :
+                moment().add(7, 'days').format('MMMM DD, YYYY');
+
+            await notificationService.sendEventRegistrationNotification({
+                parentId: student.parent_id,
+                parentEmail: student.parent_email,
+                parentPhone: student.parent_phone,
+                parentName: student.parent_name,
+                studentName: `${student.first_name} ${student.last_name}`,
+                eventTitle: event.title,
+                eventDate: moment(event.start_date).format('MMMM DD, YYYY'),
+                fee: event.fee,
+                teacherName: `${req.session.user.firstName} ${req.session.user.lastName}`,
+                paymentDueDate: paymentDueDate
+            });
+        }
 
         res.json({ 
             success: true, 
-            message: 'Registration cancelled successfully' 
+            message: 'Student registered successfully',
+            registration: registrationResult.rows[0]
         });
 
     } catch (error) {
-        console.error('Cancel registration error:', error);
+        console.error('Student registration error:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'Failed to cancel registration' 
+            message: 'An error occurred while registering the student' 
         });
     }
 });
 
-module.exports = router; 
+// Get teacher's students (for registration dropdown)
+router.get('/api/teacher-students', requireTeacher, async (req, res) => {
+    try {
+        const studentsResult = await db.query(`
+            SELECT 
+                s.id,
+                s.first_name || ' ' || s.last_name as name,
+                s.grade,
+                s.section,
+                s.student_id
+            FROM students s
+            WHERE s.class_teacher_id = $1 AND s.is_active = true
+            ORDER BY s.grade, s.section, s.first_name, s.last_name
+        `, [req.session.user.id]);
+
+        res.json({ 
+            success: true, 
+            students: studentsResult.rows 
+        });
+
+    } catch (error) {
+        console.error('Get teacher students error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Failed to load students' 
+        });
+    }
+});
+
+module.exports = router;
